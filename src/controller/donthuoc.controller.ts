@@ -24,19 +24,13 @@ class DonthuocController {
       ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
     `
 
-    try {
-      // Execute the query
-      const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
+    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
 
-      // Respond with the newly created prescription
-      res.status(201).json({
-        message: 'Prescription added successfully',
-        data: result.rows[0]
-      })
-    } catch (error) {
-      console.error('Error adding prescription:', error)
-      res.status(500).json({ message: 'Internal Server Error' })
-    }
+    // Respond with the newly created prescription
+    res.status(201).json({
+      message: 'Prescription added successfully',
+      data: result.rows[0]
+    })
   }
   // router.put('/update', asyncHandler(DonthuocController.updateDonthuoc))
   static async updateDonthuoc(req: Request, res: Response) {
@@ -61,24 +55,19 @@ class DonthuocController {
       RETURNING *;
     `
 
-    try {
-      // Execute the query
-      const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
+    // Execute the query
+    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
 
-      // If no rows were updated, return an error
-      if (result.rowCount === 0) {
-        return res.status(404).json({ message: 'Prescription not found' })
-      }
-
-      // Respond with the updated prescription
-      res.status(200).json({
-        message: 'Prescription updated successfully',
-        data: result.rows[0]
-      })
-    } catch (error) {
-      console.error('Error updating prescription:', error)
-      res.status(500).json({ message: 'Internal Server Error' })
+    // If no rows were updated, return an error
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Prescription not found' })
     }
+
+    // Respond with the updated prescription
+    res.status(200).json({
+      message: 'Prescription updated successfully',
+      data: result.rows[0]
+    })
   }
 }
 export default DonthuocController
