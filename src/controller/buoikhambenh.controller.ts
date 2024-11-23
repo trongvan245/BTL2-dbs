@@ -5,7 +5,7 @@ class BuoiKhamBenhController {
   //router.post('/add', asyncHandler(BuoikhambenhController.addBuoikhambenh))
   static async addBuoikhambenh(req: Request, res: Response) {
     // Extract data from request body
-    const { taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs } = req.body
+    const { taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs    } = req.body
 
     // Validate required fields
     if (!taikham || !trangthai || !huyetap || !nhietdo || !chandoan || !ketluan || !maso_bn || !cccd_bs) {

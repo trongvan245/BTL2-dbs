@@ -4,10 +4,10 @@ class DonthuocController {
   // router.post('/add', asyncHandler(DonthuocController.addDonthuoc))
   static async addDonthuoc(req: Request, res: Response) {
     // Extract data from the request body
-    const { maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon } = req.body
+    const { maso_bkb, thoigianradon, ngaytaikham, loidan, cccd_bs } = req.body
 
     // Validate required fields
-    if (!maso_bkb || !thoigianradon || !loidan || !maso_bn || !cccd_bs || !mahoadon) {
+    if (!maso_bkb || !thoigianradon || !loidan || !cccd_bs) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
 
@@ -18,13 +18,11 @@ class DonthuocController {
         THOIGIANRADON,
         NGAYTAIKHAM,
         LOIDAN,
-        MASO_BN,
-        CCCD_BS,
-        MAHOADON
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+        CCCD_BS
+      ) VALUES ($1, $2, $3, $4, $5) RETURNING *;
     `
 
-    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
+    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, cccd_bs])
 
     // Respond with the newly created prescription
     res.status(201).json({
@@ -35,10 +33,10 @@ class DonthuocController {
   // router.put('/update', asyncHandler(DonthuocController.updateDonthuoc))
   static async updateDonthuoc(req: Request, res: Response) {
     // Extract data from the request body
-    const { maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon } = req.body
+    const { maso_bkb, thoigianradon, ngaytaikham, loidan, cccd_bs } = req.body
 
     // Validate required fields
-    if (!maso_bkb || !thoigianradon || !loidan || !maso_bn || !cccd_bs || !mahoadon) {
+    if (!maso_bkb || !thoigianradon || !loidan || !cccd_bs) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
 
@@ -48,15 +46,13 @@ class DonthuocController {
       SET
         NGAYTAIKHAM = $3,
         LOIDAN = $4,
-        MASO_BN = $5,
-        CCCD_BS = $6,
-        MAHOADON = $7
+        CCCD_BS = $5
       WHERE MASO_BKB = $1 AND THOIGIANRADON = $2
       RETURNING *;
     `
 
     // Execute the query
-    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, maso_bn, cccd_bs, mahoadon])
+    const result = await db.query(query, [maso_bkb, thoigianradon, ngaytaikham, loidan, cccd_bs])
 
     // If no rows were updated, return an error
     if (result.rowCount === 0) {
