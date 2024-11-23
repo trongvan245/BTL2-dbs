@@ -17,7 +17,7 @@ class BenhnhiController {
   static async addBenhnhi(req: Request, res: Response) {
     // Destructure the data from the request body
     const { hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe } = req.body
-
+    console.log({ hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe })
     // Basic validation (you can add more checks here)
     if (!hoten || !ngaysinh || !chieucao || !cannang || !masobhyt || !cccd || !quanhe) {
       return res.status(400).json({ message: 'Missing required fields' })
