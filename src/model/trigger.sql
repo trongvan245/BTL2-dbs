@@ -38,41 +38,48 @@ EXECUTE FUNCTION check_ngaytaikham();
 CREATE OR REPLACE FUNCTION update_tongtiendonthuoc()
 RETURNS TRIGGER AS $$
 DECLARE
-    total_service_cost BIGINT;
-    total_medicine_cost BIGINT;
-    total BIGINT;
+    total_medicine_cost NUMERIC;
+    total_service_cost NUMERIC;
+    total NUMERIC;
 BEGIN
-    -- Get the total medicine cost
-    SELECT calculate_giacathuoc(NEW.maso_bkb) INTO total_medicine_cost;
+    IF TG_OP = 'INSERT' OR TG_OP = 'UPDATE' THEN
+        -- Calculate costs based on NEW record
+        SELECT calculate_giacathuoc(NEW.maso_bkb) INTO total_medicine_cost;
+        SELECT calculate_giacadichvu(NEW.maso_bkb) INTO total_service_cost;
 
-    -- Get the total service cost
-    SELECT calculate_giacadichvu(NEW.maso_bkb) INTO total_service_cost;
+        -- Calculate the total cost
+        total := COALESCE(total_service_cost, 0) + COALESCE(total_medicine_cost, 0);
 
-    -- Calculate the total cost
-    total := COALESCE(total_service_cost, 0) + COALESCE(total_medicine_cost, 0);
+        -- Update the tongtien in the HOADON table
+        UPDATE HOA_DON
+        SET tongtien = total
+        WHERE maso_bkb = NEW.maso_bkb;
 
-    -- Set the TONGTIEN column in the NEW record
-    NEW.tongtien := total;
+    ELSIF TG_OP = 'DELETE' THEN
+        -- Handle DELETE case using OLD record
+        SELECT calculate_giacathuoc(OLD.maso_bkb) INTO total_medicine_cost;
+        SELECT calculate_giacadichvu(OLD.maso_bkb) INTO total_service_cost;
 
-    UPDATE HOA_DON
-    SET TONGTIEN = total
-    WHERE MASO_BKB = NEW.MASO_BKB;
+        -- Calculate the total cost (likely set to 0 or based on remaining records)
+        total := COALESCE(total_service_cost, 0) + COALESCE(total_medicine_cost, 0);
 
-    RETURN NEW;
+        -- Update the tongtien in the HOADON table
+        UPDATE HOA_DON
+        SET tongtien = total
+        WHERE maso_bkb = OLD.maso_bkb;
+    END IF;
+
+    RETURN NULL; -- For BEFORE triggers, no modification is needed for the row
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER check_tongtiendonthuoc_trigger
-BEFORE INSERT OR UPDATE ON HOA_DON
-FOR EACH ROW
-EXECUTE FUNCTION check_tongtiendonthuoc();
 
 CREATE OR REPLACE TRIGGER update_tongtien_after_service_trigger
-AFTER INSERT OR UPDATE ON LAN_THUC_HIEN_DICH_VU
+after INSERT OR UPDATE OR DELETE ON LAN_THUC_HIEN_DICH_VU
 FOR EACH ROW
-EXECUTE FUNCTION check_tongtiendonthuoc();
+EXECUTE FUNCTION update_tongtiendonthuoc();
 
 CREATE OR REPLACE TRIGGER update_tongtien_after_medicine_trigger
-AFTER INSERT OR UPDATE ON SO_LUONG_THUOC
+after INSERT OR UPDATE OR DELETE ON SO_LUONG_THUOC
 FOR EACH ROW
-EXECUTE FUNCTION check_tongtiendonthuoc();
+EXECUTE FUNCTION update_tongtiendonthuoc();
