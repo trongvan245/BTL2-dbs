@@ -2,10 +2,22 @@ import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 
 class BuoiKhamBenhController {
+  //router.get('/phuhuynh/:maso', asyncHandler(BuoikhambenhController.getBuoikhambenhBymaso))
+  static async getBuoikhambenhById(req: Request, res: Response) {
+    const maso = req.params.maso
+    //console.log(maso)
+    if (!maso) {
+      return res.status(400).json({ message: 'Missing maso' })
+    }
+    const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO_BN = $1;'
+    const result = await db.query(query, [maso])
+    res.status(200).json(result.rows)
+  }
+
   //router.post('/add', asyncHandler(BuoikhambenhController.addBuoikhambenh))
   static async addBuoikhambenh(req: Request, res: Response) {
     // Extract data from request body
-    const { taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs    } = req.body
+    const { taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs } = req.body
 
     // Validate required fields
     if (!taikham || !trangthai || !huyetap || !nhietdo || !chandoan || !ketluan || !maso_bn || !cccd_bs) {
@@ -22,7 +34,7 @@ class BuoiKhamBenhController {
               CHANDOAN,
               KETLUAN,
               MASO_BN,
-              CCCD_BS
+              cccd_bs
             ) VALUES (
               $1, $2, $3, $4, $5, $6, $7, $8
             ) RETURNING *;
@@ -47,7 +59,7 @@ class BuoiKhamBenhController {
 
     const query = `
             UPDATE BUOI_KHAM_BENH
-            SET TAIKHAM = $1, TRANGTHAI = $2, HUYETAP = $3, NHIETDO = $4, CHANDOAN = $5, KETLUAN = $6, MASO_BN = $7, CCCD_BS = $8
+            SET TAIKHAM = $1, TRANGTHAI = $2, HUYETAP = $3, NHIETDO = $4, CHANDOAN = $5, KETLUAN = $6, MASO_BN = $7, cccd_bs = $8
             WHERE MASO = $9
             RETURNING *;
           `
