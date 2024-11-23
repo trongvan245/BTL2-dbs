@@ -16,13 +16,27 @@ class HoadonController {
     // SELECT * FROM SO_LUONG_THUOC S JOIN THUOC T ON S.MASO_TH = T.MASO  WHERE S.MASO_BKB = '1446b778-b4a0-47a8-a7fa-a5caa1f37bf3'
     // SELECT L.MADICHVU , ngaythuchien, chuandoan, ketluan, ten, GIACA, MOTA  FROM LAN_THUC_HIEN_DICH_VU L JOIN DICH_VU_KHAM D ON L.MADICHVU = D.MADICHVU WHERE L.MASO_BKB =  '1446b778-b4a0-47a8-a7fa-a5caa1f37bf3'
     const donthuoc = await db.query(
-      'SELECT * FROM SO_LUONG_THUOC S JOIN THUOC T ON S.MASO_TH = T.MASO  WHERE S.MASO_BKB = $1;',
+      'SELECT *,s.soluong*t.giaca FROM SO_LUONG_THUOC S JOIN THUOC T ON S.MASO_TH = T.MASO  WHERE S.MASO_BKB = $1;',
       [masobkb]
     )
+
+    const giacathuoc = await db.query(
+      'SELECT sum(s.soluong*t.giaca) FROM SO_LUONG_THUOC S JOIN THUOC T ON S.MASO_TH = T.MASO  WHERE S.MASO_BKB = $1;',
+      [masobkb]
+    )
+    console.log(giacathuoc.rows[0].sum)
+
     const lanthuchiendichvu = await db.query(
       'SELECT L.MADICHVU , ngaythuchien, chuandoan, ketluan, ten, GIACA, MOTA  FROM LAN_THUC_HIEN_DICH_VU L JOIN DICH_VU_KHAM D ON L.MADICHVU = D.MADICHVU WHERE L.MASO_BKB = $1;',
       [masobkb]
     )
+
+    const giacadichvu = await db.query(
+      'SELECT sum(giaca) FROM LAN_THUC_HIEN_DICH_VU L JOIN DICH_VU_KHAM D ON L.MADICHVU = D.MADICHVU WHERE L.MASO_BKB = $1;',
+      [masobkb]
+    )
+
+    console.log(giacadichvu.rows[0].sum)
 
     res.status(200).json({
       hoadon: hoadon.rows[0],
