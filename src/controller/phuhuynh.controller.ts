@@ -1,6 +1,25 @@
 import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 class PhuhuynhController {
+  //   router.get('/', asyncHandler(PhuhuynhController.getAllPhuhuynh))
+  static async getAllPhuhuynh(req: Request, res: Response) {
+    const query = 'SELECT * FROM PHU_HUYNH;'
+    const result = await db.query(query)
+
+    res.status(200).json(result.rows)
+  }
+
+  // router.get('/:cccd', asyncHandler(PhuhuynhController.getPhuhuynhByCCCD))
+  static async getPhuhuynhByCCCD(req: Request, res: Response) {
+    const { cccd } = req.params
+    if (!cccd) {
+      return res.status(400).json({ message: 'Missing cccd' })
+    }
+    const phuhuynh = await db.query('SELECT * FROM PHU_HUYNH WHERE CCCD = $1;', [cccd])
+
+    return res.status(200).json(phuhuynh.rows)
+  }
+
   // router.post("/add", asyncHandler(async (req, res) => {}));
   static async addPhuhuynh(req: Request, res: Response) {
     // Destructure the data from the request body

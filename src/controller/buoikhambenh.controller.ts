@@ -2,6 +2,22 @@ import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 
 class BuoiKhamBenhController {
+  //router.get('/', asyncHandler(BuoikhambenhController.getAllBuoikhambenh))
+  static async getAllBuoikhambenh(req: Request, res: Response) {
+    const query = 'SELECT * FROM BUOI_KHAM_BENH;'
+    const result = await db.query(query)
+    res.status(200).json(result.rows)
+  }
+  //router.get('/benhnhi/:maso', asyncHandler(BuoikhambenhController.getBuoikhambenhByBenhnhi))
+  static async getBuoikhambenhByBenhnhi(req: Request, res: Response) {
+    const maso = req.params.maso
+    if (!maso) {
+      return res.status(400).json({ message: 'Missing maso' })
+    }
+    const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO_BN = $1;'
+    const result = await db.query(query, [maso])
+    res.status(200).json(result.rows)
+  }
   //router.get('/phuhuynh/:maso', asyncHandler(BuoikhambenhController.getBuoikhambenhBymaso))
   static async getBuoikhambenhById(req: Request, res: Response) {
     const maso = req.params.maso
@@ -9,9 +25,26 @@ class BuoiKhamBenhController {
     if (!maso) {
       return res.status(400).json({ message: 'Missing maso' })
     }
-    const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO_BN = $1;'
+    const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO = $1;'
     const result = await db.query(query, [maso])
-    res.status(200).json(result.rows)
+
+    const donthuoc = await db.query(
+      'SELECT *,s.soluong*t.giaca FROM SO_LUONG_THUOC S JOIN THUOC T ON S.MASO_TH = T.MASO  WHERE S.MASO_BKB = $1;',
+      [maso]
+    )
+
+    const lanthuchiendichvu = await db.query(
+      'SELECT L.MADICHVU , ngaythuchien, chuandoan, ketluan, ten, GIACA, MOTA  FROM LAN_THUC_HIEN_DICH_VU L JOIN DICH_VU_KHAM D ON L.MADICHVU = D.MADICHVU WHERE L.MASO_BKB = $1;',
+      [maso]
+    )
+
+    console.log(result.rows[0])
+
+    res.status(200).json({
+      buoikhambenh: result.rows[0],
+      donthuoc: donthuoc.rows,
+      lanthuchiendichvu: lanthuchiendichvu.rows
+    })
   }
 
   //router.post('/add', asyncHandler(BuoikhambenhController.addBuoikhambenh))

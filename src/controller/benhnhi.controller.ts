@@ -1,6 +1,22 @@
 import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 class BenhnhiController {
+  // router.get('/', asyncHandler(BenhnhiController.getAllBenhnhi))
+  static async getAllBenhnhi(req: Request, res: Response) {
+    const benhnhi = await db.query('SELECT * FROM BENH_NHI')
+    return res.status(200).json(benhnhi.rows)
+  }
+
+  // router.get('/:maso', asyncHandler(BenhnhiController.getBenhnhiByMaso))
+  static async getBenhnhiByMaso(req: Request, res: Response) {
+    const { maso } = req.params
+    if (!maso) {
+      return res.status(400).json({ message: 'Missing maso' })
+    }
+    const benhnhi = await db.query('SELECT * FROM BENH_NHI WHERE MASO = $1;', [maso])
+    return res.status(200).json(benhnhi.rows)
+  }
+
   // router.get('/phuhuynh/:cccd', asyncHandler(BenhnhiController.getBenhnhiByCCCD))
   static async getBenhnhiByCCCD(req: Request, res: Response) {
     const { cccd } = req.params
