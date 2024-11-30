@@ -4,6 +4,7 @@ import BuoikhambenhRouter from '../buoikhambenh.router'
 import DonthuocRouter from '../donthuoc.router'
 import LanthuchiendicvuRouter from '../lanthuchiendichvu.router'
 import HoadonRouter from '../hoadon.router'
+import BACSIRouter from '../bacsi.router'
 import { Router } from 'express'
 import db from '../../dbs/initDatabase'
 const router = Router()
@@ -14,6 +15,7 @@ router.use('/buoikhambenh', BuoikhambenhRouter)
 router.use('/donthuoc', DonthuocRouter)
 router.use('/lanthuchiendichvu', LanthuchiendicvuRouter)
 router.use('/hoadon', HoadonRouter)
+router.use('/bacsi', BACSIRouter)
 
 // Run query at the front end
 router.post('/query', async (req, res) => {

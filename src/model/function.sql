@@ -27,3 +27,122 @@ END;
 $$ LANGUAGE plpgsql;
 
 SELECT calculate_giacadichvu('1446b778-b4a0-47a8-a7fa-a5caa1f37bf3');
+
+
+CREATE OR REPLACE FUNCTION calculate_pending_tongtien(cccd_input VARCHAR)
+RETURNS NUMERIC AS $$
+BEGIN
+    RETURN (
+        SELECT COALESCE(SUM(tongtien), 0)
+        FROM hoa_don
+        WHERE cccd_ph = cccd_input
+          AND status = 'PENDING'
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT calculate_pending_tongtien('111222333444');
+
+
+CREATE OR REPLACE FUNCTION calculate_done_tongtien(cccd_input VARCHAR)
+RETURNS NUMERIC AS $$
+BEGIN
+    RETURN (
+        SELECT COALESCE(SUM(tongtien), 0)
+        FROM hoa_don
+        WHERE cccd_ph = cccd_input
+          AND status = 'DONE'
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT calculate_done_tongtien('111222333444');
+
+
+
+
+CREATE OR REPLACE FUNCTION tinh_tonghoadon_trong_thoigian( ffrom DATE, tto DATE)
+RETURNS NUMERIC AS $$
+BEGIN
+    RETURN (
+        SELECT COALESCE(SUM(tongtien), 0)
+        FROM hoa_don
+        WHERE hoa_don.ngaytao BETWEEN ffrom AND tto
+    );
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT tinh_tonghoadon_trong_thoigian('2024-11-23', '2024-11-23');
+
+
+
+
+CREATE OR REPLACE FUNCTION get_pills_for_child(child_id_input UUID)
+RETURNS TABLE(
+    ms UUID, 
+    ten VARCHAR(100), 
+    dang VARCHAR(50), 
+    giaca BIGINT,
+    soluong INT
+) AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM BENH_NHI WHERE maso = child_id_input) THEN
+        RAISE EXCEPTION 'Không tìm thấy bệnh nhi với mã số %', child_id_input;
+    END IF;
+    RETURN QUERY
+    SELECT
+        t.maso AS ms,
+        t.ten,
+        t.dang,
+        t.giaca,
+        slg.soluong as soluong
+    FROM
+        "benh_nhi" bn
+    JOIN
+        "buoi_kham_benh" bkb ON bn.maso = bkb.maso_bn
+    JOIN
+        "so_luong_thuoc" slg ON bkb.maso = slg.maso_bkb
+    JOIN
+        "thuoc" t ON slg.maso_th = t.maso
+    WHERE
+        bn.maso = child_id_input;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+SELECT * FROM get_pills_for_child('b4ab5726-f0bc-4c64-86ce-f3a40ee00220'::uuid);
+
+
+
+CREATE OR REPLACE FUNCTION get_bkb_in_date_range(input_cccd_bs VARCHAR(100), ffrom DATE, tto DATE)
+RETURNS TABLE(
+    bkb_maso UUID,
+    ngaykham DATE,
+    trangthai VARCHAR(50),
+    benh_nhi_maso UUID,
+    ten_bn VARCHAR(255)
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        bkb.maso AS bkb_maso,
+        bkb.ngaykham,
+        bkb.trangthai,
+        bn.maso AS benh_nhi_maso,
+        bn.hoten AS ten_bn
+    FROM
+        "bac_si" bs
+    JOIN
+        "buoi_kham_benh" bkb ON bs.cccd = bkb.cccd_bs
+    JOIN
+        "benh_nhi" bn ON bn.maso = bkb.maso_bn
+    WHERE
+        bs.cccd = input_cccd_bs
+        AND bkb.ngaykham BETWEEN ffrom AND tto;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+SELECT * FROM get_bkb_in_date_range('333333333333', '2024-01-01', '2025-01-31');

@@ -9,4 +9,6 @@ router.post('/add', asyncHandler(PhuhuynhController.addPhuhuynh))
 router.put('/update', asyncHandler(PhuhuynhController.updatePhuhuynh))
 router.delete('/delete', asyncHandler(PhuhuynhController.deletePhuhuynh))
 router.get('/benhnhi/:cccd', asyncHandler(PhuhuynhController.getBenhnhiByCCCD))
+router.get('/pendingfee/:cccd', asyncHandler(PhuhuynhController.getPendingFee))
+router.get('/donefee/:cccd', asyncHandler(PhuhuynhController.getDoneFee))
 export default router

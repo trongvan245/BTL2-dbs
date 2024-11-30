@@ -121,13 +121,37 @@ class PhuhuynhController {
 
   static async getBenhnhiByCCCD(req: Request, res: Response) {
     const { cccd } = req.params
-    console.log(cccd)
+
     if (!cccd) {
       return res.status(400).json({ message: 'Missing cccd' })
     }
     const benhnhi = await db.query('SELECT * FROM GIAM_HO WHERE CCCD = $1;', [cccd])
 
     return res.status(200).json(benhnhi.rows)
+  }
+
+  static async getPendingFee(req: Request, res: Response) {
+    const { cccd } = req.params
+    if (!cccd) {
+      return res.status(400).json({ message: 'Missing cccd' })
+    }
+    const result = await db.query('SELECT calculate_pending_tongtien($1)', [cccd])
+    const pending_fee = result.rows[0].calculate_pending_tongtien
+
+    return res.status(200).json({ message: pending_fee })
+  }
+
+  static async getDoneFee(req: Request, res: Response) {
+    //lol naming
+    const { cccd } = req.params
+    console.log(cccd)
+    if (!cccd) {
+      return res.status(400).json({ message: 'Missing cccd' })
+    }
+    const result = await db.query('SELECT calculate_done_tongtien($1)', [cccd])
+    const done_fee = result.rows[0].calculate_done_tongtien
+
+    return res.status(200).json({ message: done_fee })
   }
 }
 
