@@ -118,6 +118,17 @@ class PhuhuynhController {
       res.status(500).json({ message: 'Error deleting Phu Huynh', error })
     }
   }
+
+  static async getBenhnhiByCCCD(req: Request, res: Response) {
+    const { cccd } = req.params
+    console.log(cccd)
+    if (!cccd) {
+      return res.status(400).json({ message: 'Missing cccd' })
+    }
+    const benhnhi = await db.query('SELECT * FROM GIAM_HO WHERE CCCD = $1;', [cccd])
+
+    return res.status(200).json(benhnhi.rows)
+  }
 }
 
 export default PhuhuynhController
