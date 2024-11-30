@@ -1,134 +1,130 @@
 import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
+
 class BenhnhiController {
   // router.get('/', asyncHandler(BenhnhiController.getAllBenhnhi))
+  // Get all Benh Nhi records
   static async getAllBenhnhi(req: Request, res: Response) {
-    const benhnhi = await db.query('SELECT * FROM BENH_NHI')
-    return res.status(200).json(benhnhi.rows)
+    try {
+      const benhnhi = await db.query('SELECT * FROM BENH_NHI');
+      return res.status(200).json(benhnhi.rows);
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Error retrieving Benh Nhi', error: error.message })
+    }
   }
 
   // router.get('/:maso', asyncHandler(BenhnhiController.getBenhnhiByMaso))
+  // Get a single Benh Nhi by its MASO
   static async getBenhnhiByMaso(req: Request, res: Response) {
     const { maso } = req.params
     if (!maso) {
-      return res.status(400).json({ message: 'Missing maso' })
+      return res.status(400).json({ message: 'Missing Benh Nhi maso' })
     }
-    const benhnhi = await db.query('SELECT * FROM BENH_NHI WHERE MASO = $1;', [maso])
-    return res.status(200).json(benhnhi.rows)
+    try {
+      const benhnhi = await db.query('SELECT * FROM BENH_NHI WHERE MASO = $1;', [maso]);
+      if (benhnhi.rows.length === 0) {
+        return res.status(404).json({ message: 'Benh Nhi not found' });
+      }
+      return res.status(200).json(benhnhi.rows[0]);
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Error retrieving Benh Nhi', error: error.message })
+    }
   }
 
   // router.get('/phuhuynh/:cccd', asyncHandler(BenhnhiController.getBenhnhiByCCCD))
+  // Get Benh Nhi records by Phu Huynh CCCD
   static async getBenhnhiByCCCD(req: Request, res: Response) {
-    const { cccd } = req.params
+    const { cccd } = req.params;
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing cccd' })
+      return res.status(400).json({ message: 'Missing CCCD phu huynh cua Benh Nhi' });
     }
-    const benhnhi = await db.query('SELECT * FROM GIAM_HO G JOIN BENH_NHI B ON G.MASO_BN = B.MASO WHERE G.CCCD = $1;', [
-      cccd
-    ])
-
-    return res.status(200).json(benhnhi.rows)
+    try {
+      const benhnhi = await db.query(
+        'SELECT * FROM GIAM_HO G JOIN BENH_NHI B ON G.MASO_BN = B.MASO WHERE G.CCCD = $1;',
+        [cccd]
+      );
+      return res.status(200).json(benhnhi.rows);
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Error retrieving patients', error: error.message })
+    }
   }
+
   //router.post('/add', asyncHandler(BenhnhiController.addBenhnhi))
+  // Add a new Benh Nhi
   static async addBenhnhi(req: Request, res: Response) {
-    // Destructure the data from the request body
     const { hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe } = req.body
-    console.log({ hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe })
-    // Basic validation (you can add more checks here)
     if (!hoten || !ngaysinh || !chieucao || !cannang || !masobhyt || !cccd || !quanhe) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Missing required fields' });
     }
+    try {
+      // Call InsertBenhNhi procedure
+      var result = await db.query(
+        `CALL InsertBenhNhi($1, $2, $3, $4, $5, $6, $7, NULL);`,
+        [hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt]
+      );
 
-    // SQL query to insert the new data into the BENH_NHI table
-    const query = `
-      INSERT INTO BENH_NHI (HOTEN, NGAYSINH, GIOITINH, CHIEUCAO, CANNANG, BMI, TIENSUBENH, MASOBHYT)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `
+      // Add guardian relationship
+      console.log(result);
+      const maso_bn = result.rows[0].p_maso;
+      
+      await db.query(
+        'INSERT INTO GIAM_HO (CCCD, MASO_BN, QUANHE) VALUES ($1, $2, $3);',
+        [cccd, maso_bn, quanhe]
+      );
 
-    // Execute the query with the values
-    const result = await db.query(query, [hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt])
-
-    const quanheResult = await db.query(
-      'INSERT INTO GIAM_HO (CCCD, MASO_BN, QUANHE) VALUES ($1, $2, $3) RETURNING *;',
-      [cccd, result.rows[0].maso, quanhe]
-    )
-
-    // Respond with the newly created record
-    res.status(201).json({
-      message: 'Benh Nhi added successfully',
-      data: { ...result.rows[0], quanhe, phuhuynh_cccd: cccd }
-    })
+      res.status(201).json({
+        message: 'Benh Nhi added successfully',
+        data: { maso_bn, hoten, quanhe, phuhuynh_cccd: cccd }
+      });
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ 
+        message: 'Error adding Benh Nhi', 
+        error: error.message 
+      })
+    }
   }
+
   // router.put('/update', asyncHandler(BenhnhiController.updateBenhnhi))
-
   static async updateBenhnhi(req: Request, res: Response) {
-    // Destructure the data from the request body
-    const { maso, hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt } = req.body
-
-    // Basic validation (you can add more checks here)
+    const { maso, hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt } = req.body
     if (!maso) {
       return res.status(400).json({ message: 'Missing required fields' })
     }
+    try {
+      // Call UpdateBenhNhi procedure
+      await db.query(
+        `CALL UpdateBenhNhi($1, $2, $3, $4, $5, $6, $7, $8);`,
+        [maso, hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt]
+      );
 
-    // SQL query to update the data in the BENH_NHI table
-    const query = `
-      UPDATE BENH_NHI
-      SET HOTEN = $1, NGAYSINH = $2, GIOITINH = $3, CHIEUCAO = $4, CANNANG = $5, BMI = $6, TIENSUBENH = $7, MASOBHYT = $8
-      WHERE MASO = $9
-      RETURNING *;
-    `
-
-    // Execute the query with the values
-    const result = await db.query(query, [
-      hoten,
-      ngaysinh,
-      gioitinh,
-      chieucao,
-      cannang,
-      bmi,
-      tiensubenh,
-      masobhyt,
-      maso
-    ])
-
-    // Respond with the updated record
-    res.status(200).json({
-      message: 'Benh Nhi updated successfully',
-      data: result.rows[0]
-    })
+      return res.status(200).json({ message: 'Benh Nhi updated successfully' });
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Error updating Benh Nhi', error: error.message });
+    }
   }
 
   // router.delete('/delete', asyncHandler(BenhnhiController.deleteBenhnhi))
   static async deleteBenhnhi(req: Request, res: Response) {
-    // Destructure the data from the request body
     const { maso } = req.body
-
-    // Basic validation (you can add more checks here)
     if (!maso) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Missing maso Benh Nhi' })
     }
-
-    const deletew = await db.query('SELECT * FROM GIAM_HO WHERE MASO_BN = $1', [maso])
-    if (deletew.rows.length === 0) {
-      return res.status(400).json({ message: 'Benh Nhi not found' })
+    try {
+      // Call DeleteBenhNhi procedure
+      const result = await db.query(`CALL DeleteBenhNhi($1);`, [maso]);
+      return res.status(200).json({
+        message: 'Benh Nhi deleted successfully',
+        data: result.rows[0]
+      })
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Error deleting Benh Nhi', error: error.message });
     }
-    const quanhe = await db.query('DELETE FROM GIAM_HO WHERE MASO_BN = $1', [maso])
-
-    // SQL query to delete the data in the BENH_NHI table
-    const query = `
-        DELETE FROM BENH_NHI
-        WHERE MASO = $1
-        RETURNING *;
-        `
-    // Execute the query with the values
-    const result = await db.query(query, [maso])
-
-    // Respond with the deleted record
-    res.status(200).json({
-      message: 'Benh Nhi deleted successfully',
-      data: result.rows[0]
-    })
   }
 }
 

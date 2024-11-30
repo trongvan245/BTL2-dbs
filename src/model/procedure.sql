@@ -7,7 +7,8 @@ CREATE OR REPLACE PROCEDURE InsertBenhNhi(
     IN chieucao NUMERIC(5, 2),
     IN cannang NUMERIC(5, 2),
     IN tiensubenh TEXT,
-    IN masobhyt CHAR(10)
+    IN masobhyt CHAR(10),
+    OUT p_maso UUID
 )
 LANGUAGE plpgsql
 AS $$
@@ -18,6 +19,10 @@ BEGIN
         RAISE EXCEPTION 'Họ tên bệnh nhi không được để trống.';
     END IF;
     
+    IF NOT ten_bn ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+      RAISE EXCEPTION 'Họ tên bệnh nhi chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
+    END IF;
+    
     IF ngaysinh IS NULL THEN
         RAISE EXCEPTION 'Ngày sinh bệnh nhi không được để trống.';
     END IF;
@@ -26,8 +31,6 @@ BEGIN
         RAISE EXCEPTION 'Giới tính bệnh nhi không được để trống.';
     END IF;
 
-    
-    
     IF ngaysinh > CURRENT_DATE THEN
         RAISE EXCEPTION  'Ngày sinh của bệnh nhi phải trước ngày hiện tại.';
     END IF;
@@ -55,13 +58,12 @@ BEGIN
     bmi := ROUND(cannang / (chieucao / 100)^2, 2);
      
     INSERT INTO BENH_NHI (HOTEN, NGAYSINH, GIOITINH, CHIEUCAO, CANNANG, BMI, TIENSUBENH, MASOBHYT)
-    VALUES (ten_bn, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt);
+    VALUES (ten_bn, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt)
+    RETURNING MASO INTO p_maso;
 END;
 $$;
 
-
-
--- Cập nhật dữ liệu bảng một bệnh nhi
+-- Cập nhật dữ liệu bảng BENH_NHI
 CREATE OR REPLACE PROCEDURE UpdateBenhNhi(
   In p_maso_bn UUID,
   IN p_ten_bn VARCHAR(255),
@@ -115,6 +117,10 @@ BEGIN
   p_cannang   := COALESCE(p_cannang, old_cannang);
   p_tiensubenh:= COALESCE(p_tiensubenh, old_tiensubenh);
   p_masobhyt  := COALESCE(p_masobhyt, old_masobhyt);
+
+  IF NOT p_ten_bn ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+    RAISE EXCEPTION 'Họ tên bệnh nhi chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
+  END IF;
  
   IF p_ngaysinh > CURRENT_DATE THEN
       RAISE EXCEPTION  'Ngày sinh của bệnh nhi phải trước ngày hiện tại.';
@@ -154,8 +160,6 @@ BEGIN
   WHERE MASO = p_maso_bn;
 END;
 $$;
-
-
 
 -- Xóa dữ liệu trong bảng BENH_NHI và các thông tin liên quan
 CREATE OR REPLACE PROCEDURE DeleteBenhNhi(p_maso UUID)
