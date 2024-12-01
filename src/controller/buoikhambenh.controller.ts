@@ -12,7 +12,7 @@ class BuoiKhamBenhController {
   static async getBuoikhambenhByBenhnhi(req: Request, res: Response) {
     const maso = req.params.maso
     if (!maso) {
-      return res.status(400).json({ message: 'Missing maso' })
+      return res.status(400).json({ message: 'Thiếu mã số' })
     }
     const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO_BN = $1;'
     const result = await db.query(query, [maso])
@@ -23,7 +23,7 @@ class BuoiKhamBenhController {
     const maso = req.params.maso
     //console.log(maso)
     if (!maso) {
-      return res.status(400).json({ message: 'Missing maso' })
+      return res.status(400).json({ message: 'Thiếu mã số' })
     }
     const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO = $1;'
     const result = await db.query(query, [maso])
@@ -54,7 +54,7 @@ class BuoiKhamBenhController {
 
     // Validate required fields
     if (!taikham || !trangthai || !huyetap || !nhietdo || !chandoan || !ketluan || !maso_bn || !cccd_bs) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
 
     // Insert into the BUOI_KHAM_BENH table
@@ -78,7 +78,7 @@ class BuoiKhamBenhController {
 
     // Respond with the newly created record
     res.status(201).json({
-      message: 'Medical appointment added successfully',
+      message: 'Thêm buổi khám bệnh thành công',
       data: result.rows[0]
     })
   }
@@ -87,7 +87,7 @@ class BuoiKhamBenhController {
     const { maso, taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs } = req.body
 
     if (!maso) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
 
     const query = `
@@ -109,11 +109,21 @@ class BuoiKhamBenhController {
     ])
 
     res.status(200).json({
-      message: 'Medical appointment updated successfully',
+      message: 'Cập nhật buổi khám bệnh thành công',
       data: result.rows[0]
     })
   }
 
+  static async getFeeInDateRange(req: Request, res: Response) {
+    const { from, to } = req.query
+    console.log(from, to)
+    try {
+      const fee = await db.query('SELECT tinh_tonghoadon_trong_thoigian($1, $2);', [from, to])
+      return res.status(200).json({ total_fee: fee.rows[0].tinh_tonghoadon_trong_thoigian })
+    } catch (error) {
+      return res.status(400).json({ message: 'Có lỗi xảy ra', error })
+    }
+  }
 }
 
 export default BuoiKhamBenhController

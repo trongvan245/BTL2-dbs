@@ -4,12 +4,12 @@ class HoadonController {
   static async getHoadon(req: Request, res: Response) {
     const mahoadon = req.params.mahoadon
     if (!mahoadon) {
-      return res.status(400).json({ message: 'Missing mahoadon' })
+      return res.status(400).json({ message: 'Thiếu mã hóa đơn' })
     }
 
     const hoadon = await db.query('SELECT * FROM HOA_DON WHERE MAHOADON = $1;', [mahoadon])
     if (hoadon.rows.length === 0) {
-      return res.status(404).json({ message: 'Invoice not found' })
+      return res.status(404).json({ message: 'Không tìm thấy hóa đơn' })
     }
     const masobkb = hoadon.rows[0].maso_bkb
 
@@ -50,7 +50,7 @@ class HoadonController {
 
     // Validate required fields
     if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     const result = await db.query(
       'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
@@ -58,7 +58,7 @@ class HoadonController {
     )
 
     res.status(201).json({
-      message: 'Invoice added successfully',
+      message: 'Thêm hóa đơn thành công',
       data: result.rows[0]
     })
   }
@@ -68,7 +68,7 @@ class HoadonController {
 
     // Validate required fields
     if (!mahoadon) {
-      return res.status(400).json({ message: 'Missing required field: mahoadon' })
+      return res.status(400).json({ message: 'Thiếu trường bắt buộc: mã hóa đơn' })
     }
 
     const query = `
@@ -83,11 +83,11 @@ class HoadonController {
     const result = await db.query(query, values)
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Invoice not found' })
+      return res.status(404).json({ message: 'Không tìm thấy hóa đơn' })
     }
 
     res.status(200).json({
-      message: 'Invoice updated successfully',
+      message: 'Cập nhật hóa đơn thành công',
       data: result.rows[0]
     })
   }

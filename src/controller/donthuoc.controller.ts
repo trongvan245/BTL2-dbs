@@ -8,7 +8,7 @@ class DonthuocController {
 
     // Validate required fields
     if (!maso_bkb  || !loidan || !cccd_bs) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
 
     // SQL query to insert a new prescription into the DON_THUOC table
@@ -25,7 +25,7 @@ class DonthuocController {
 
     // Respond with the newly created prescription
     res.status(201).json({
-      message: 'Prescription added successfully',
+      message: 'Thêm đơn thuốc thành công',
       data: result.rows[0]
     })
   }
@@ -36,7 +36,7 @@ class DonthuocController {
 
     // Validate required fields
     if (!maso_bkb || !thoigianradon || !loidan || !cccd_bs) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
 
     // SQL query to update the prescription
@@ -55,12 +55,12 @@ class DonthuocController {
 
     // If no rows were updated, return an error
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Prescription not found' })
+      return res.status(404).json({ message: 'Không tìm thấy đơn thuốc' })
     }
 
     // Respond with the updated prescription
     res.status(200).json({
-      message: 'Prescription updated successfully',
+      message: 'Cập nhật đơn thuốc thành công',
       data: result.rows[0]
     })
   }
