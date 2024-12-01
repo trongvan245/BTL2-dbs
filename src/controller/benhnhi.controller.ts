@@ -55,7 +55,7 @@ class BenhnhiController {
   //router.post('/add', asyncHandler(BenhnhiController.addBenhnhi))
   // Add a new Benh Nhi
   static async addBenhnhi(req: Request, res: Response) {
-    const { hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe } = req.body
+    const { hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt, cccd, quanhe } = req.body
     if (!hoten || !ngaysinh || !chieucao || !cannang || !masobhyt || !cccd || !quanhe) {
       return res.status(400).json({ message: 'Missing required fields' });
     }

@@ -39,8 +39,8 @@ BEGIN
         RAISE EXCEPTION 'Bệnh nhi phải dưới 18 tuổi';
     END IF;
     
-    IF gioitinh NOT IN ('F', 'M') THEN
-        RAISE EXCEPTION 'Giới tính phải là "F" (Nữ) hoặc "M" (Nam).';
+    IF gioitinh NOT IN ('Nữ', 'Nam') THEN
+        RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
     END IF;
 
     IF chieucao <= 0 OR chieucao >= 1000 THEN
@@ -130,9 +130,9 @@ BEGIN
       RAISE EXCEPTION 'Bệnh nhi phải dưới 18 tuổi';
   END IF;
   
-  IF p_gioitinh NOT IN ('F', 'M') THEN
-      RAISE EXCEPTION 'Giới tính phải là "F" (Nữ) hoặc "M" (Nam).';
-  END IF;
+  IF p_gioitinh NOT IN ('Nữ', 'Nam') THEN
+        RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
+    END IF;
 
   IF p_chieucao <= 0 OR p_chieucao >= 1000 THEN
       RAISE EXCEPTION  'Chiều cao phải lớn hơn 0 cm và nhỏ hơn 1000 cm (tính theo cm).';
