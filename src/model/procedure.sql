@@ -3,7 +3,7 @@
 CREATE OR REPLACE PROCEDURE InsertBenhNhi(
     IN ten_bn VARCHAR(255),
     IN ngaysinh DATE,
-    IN gioitinh CHAR(1),
+    IN gioitinh CHAR(255),
     IN chieucao NUMERIC(5, 2),
     IN cannang NUMERIC(5, 2),
     IN tiensubenh TEXT,
@@ -50,8 +50,11 @@ BEGIN
     IF cannang <= 0 OR cannang >= 1000 THEN
         RAISE EXCEPTION  'Cân nặng phải lớn hơn 0 kg và nhỏ hơn 1000 kg.';
     END IF;
-
-    IF LENGTH(masobhyt) != 10 THEN
+  
+    IF masobhyt = '' THEN
+       masobhyt := NULL;
+    END IF;
+    IF masobhyt IS NOT NULL AND LENGTH(masobhyt) != 10 THEN
         RAISE EXCEPTION  'Mã BHYT phải có đúng 10 ký tự.';
     END IF;
     
@@ -68,7 +71,7 @@ CREATE OR REPLACE PROCEDURE UpdateBenhNhi(
   In p_maso_bn UUID,
   IN p_ten_bn VARCHAR(255),
   IN p_ngaysinh DATE,
-  IN p_gioitinh CHAR(1),
+  IN p_gioitinh CHAR(255),
   IN p_chieucao NUMERIC(5, 2),
   IN p_cannang NUMERIC(5, 2),
   IN p_tiensubenh TEXT,
@@ -80,7 +83,7 @@ DECLARE
     p_bmi NUMERIC(4, 2);
     old_ten_bn VARCHAR(255);
     old_ngaysinh DATE;
-    old_gioitinh CHAR(1);
+    old_gioitinh CHAR(255);
     old_chieucao NUMERIC(5, 2);
     old_cannang NUMERIC(5, 2);
     old_tiensubenh TEXT;
