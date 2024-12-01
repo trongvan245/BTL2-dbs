@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import db from '~/dbs/initDatabase'
+import db from '../dbs/initDatabase'; // Assuming the correct relative path to the initDatabase module
 
 class BenhnhiController {
   // router.get('/', asyncHandler(BenhnhiController.getAllBenhnhi))
@@ -55,8 +55,8 @@ class BenhnhiController {
   //router.post('/add', asyncHandler(BenhnhiController.addBenhnhi))
   // Add a new Benh Nhi
   static async addBenhnhi(req: Request, res: Response) {
-    const { hoten, ngaysinh, gioitinh, chieucao, cannang, bmi, tiensubenh, masobhyt, cccd, quanhe } = req.body
-    if (!hoten || !ngaysinh || !chieucao || !cannang || !masobhyt || !cccd || !quanhe) {
+    const { hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt, cccd, quanhe } = req.body
+    if (!hoten || !ngaysinh || !chieucao || !cannang || !cccd || !quanhe) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
     try {
@@ -71,7 +71,7 @@ class BenhnhiController {
       const maso_bn = result.rows[0].p_maso;
       
       await db.query(
-        'INSERT INTO GIAM_HO (CCCD, MASO_BN, QUANHE) VALUES ($1, $2, $3);',
+        'CALL InsertGiamHo($1, $2, $3);',
         [cccd, maso_bn, quanhe]
       );
 

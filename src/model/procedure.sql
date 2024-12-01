@@ -3,7 +3,7 @@
 CREATE OR REPLACE PROCEDURE InsertBenhNhi(
     IN ten_bn VARCHAR(255),
     IN ngaysinh DATE,
-    IN gioitinh CHAR(1),
+    IN gioitinh CHAR(255),
     IN chieucao NUMERIC(5, 2),
     IN cannang NUMERIC(5, 2),
     IN tiensubenh TEXT,
@@ -39,8 +39,8 @@ BEGIN
         RAISE EXCEPTION 'Bệnh nhi phải dưới 18 tuổi';
     END IF;
     
-    IF gioitinh NOT IN ('F', 'M') THEN
-        RAISE EXCEPTION 'Giới tính phải là "F" (Nữ) hoặc "M" (Nam).';
+    IF gioitinh NOT IN ('Nữ', 'Nam') THEN
+        RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
     END IF;
 
     IF chieucao <= 0 OR chieucao >= 1000 THEN
@@ -50,8 +50,11 @@ BEGIN
     IF cannang <= 0 OR cannang >= 1000 THEN
         RAISE EXCEPTION  'Cân nặng phải lớn hơn 0 kg và nhỏ hơn 1000 kg.';
     END IF;
-
-    IF LENGTH(masobhyt) != 10 THEN
+  
+    IF masobhyt = '' THEN
+       masobhyt := NULL;
+    END IF;
+    IF masobhyt IS NOT NULL AND LENGTH(masobhyt) != 10 THEN
         RAISE EXCEPTION  'Mã BHYT phải có đúng 10 ký tự.';
     END IF;
     
@@ -68,7 +71,7 @@ CREATE OR REPLACE PROCEDURE UpdateBenhNhi(
   In p_maso_bn UUID,
   IN p_ten_bn VARCHAR(255),
   IN p_ngaysinh DATE,
-  IN p_gioitinh CHAR(1),
+  IN p_gioitinh CHAR(255),
   IN p_chieucao NUMERIC(5, 2),
   IN p_cannang NUMERIC(5, 2),
   IN p_tiensubenh TEXT,
@@ -80,7 +83,7 @@ DECLARE
     p_bmi NUMERIC(4, 2);
     old_ten_bn VARCHAR(255);
     old_ngaysinh DATE;
-    old_gioitinh CHAR(1);
+    old_gioitinh CHAR(255);
     old_chieucao NUMERIC(5, 2);
     old_cannang NUMERIC(5, 2);
     old_tiensubenh TEXT;
@@ -130,9 +133,9 @@ BEGIN
       RAISE EXCEPTION 'Bệnh nhi phải dưới 18 tuổi';
   END IF;
   
-  IF p_gioitinh NOT IN ('Nam', 'Nữ') THEN
-      RAISE EXCEPTION 'Giới tính phải là Nam hoặc Nữ.';
-  END IF;
+  IF p_gioitinh NOT IN ('Nữ', 'Nam') THEN
+        RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
+    END IF;
 
   IF p_chieucao <= 0 OR p_chieucao >= 1000 THEN
       RAISE EXCEPTION  'Chiều cao phải lớn hơn 0 cm và nhỏ hơn 1000 cm (tính theo cm).';
@@ -200,5 +203,103 @@ BEGIN
 END;
 $$;
 
+------------------------------------------------------------------
+------------------------------------------------------------------
+-- Thêm dữ liệu vào bảng PHU_HUYNH
+CREATE OR REPLACE PROCEDURE InsertPhuHuynh(
+    IN p_cccd CHAR(12),
+    IN p_hoten VARCHAR(255),
+    IN p_sdt CHAR(10),
+    IN p_sonha VARCHAR(255),
+    IN p_tenduong VARCHAR(255),
+    IN p_phuong VARCHAR(255),
+    IN p_huyen VARCHAR(255),
+    IN p_tinh VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_hoten IS NULL OR p_hoten = '' THEN
+        RAISE EXCEPTION 'Họ tên phụ huynh không được để trống.';
+    END IF;
+    
+    IF LENGTH(p_cccd) != 12 OR p_cccd !~ '^\d+$' THEN
+        RAISE EXCEPTION 'CCCD phải là chứa đúng 12 số.';
+    END IF;
+    
+    IF NOT p_hoten ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+      RAISE EXCEPTION 'Họ tên phụ huynh chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
+    END IF;
+    
+    IF LENGTH(p_sdt) != 10 OR p_sdt !~ '^\d+$' THEN
+        RAISE EXCEPTION 'Số điện thoại phải là chứa đúng 10 số.';
+    END IF;
+    
+    
+    IF p_sonha IS NULL OR p_sonha = '' THEN
+        RAISE EXCEPTION 'Số nhà không được để trống.';
+    END IF;
 
+    IF p_tenduong IS NULL OR p_tenduong = '' THEN
+        RAISE EXCEPTION 'Tên đường không được để trống.';
+    END IF;
 
+    IF p_phuong IS NULL OR p_phuong = '' THEN
+        RAISE EXCEPTION 'Phường không được để trống.';
+    END IF;
+
+    IF p_huyen IS NULL OR p_huyen = '' THEN
+        RAISE EXCEPTION 'Huyện không được để trống.';
+    END IF;
+
+    IF p_tinh IS NULL OR p_tinh = '' THEN
+        RAISE EXCEPTION 'Tỉnh không được để trống.';
+    END IF;
+    
+    INSERT INTO PHU_HUYNH (CCCD, HOTEN, SDT, SONHA, TENDUONG, PHUONG, HUYEN, TINH)
+    VALUES (p_cccd, p_hoten, p_sdt, p_sonha, p_tenduong, p_phuong, p_huyen, p_tinh);
+    RAISE NOTICE 'Thêm phụ huynh thành công!';
+END;
+$$;
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+-- Thêm dữ liệu vào bảng GIAM_HO
+CREATE OR REPLACE PROCEDURE InsertGiamHo(
+    IN p_cccd CHAR(12),
+    IN b_maso UUID,
+    IN p_quanhe VARCHAR(255)
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PHU_HUYNH WHERE CCCD = p_cccd) THEN
+        RAISE EXCEPTION 'Không tìm thấy phụ huynh với CCCD %', p_cccd;
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM BENH_NHI WHERE MASO = b_maso) THEN
+        RAISE EXCEPTION 'Không tìm thấy bệnh nhi với mã số %', b_maso;
+    END IF;
+    
+    IF p_quanhe IS NULL OR p_quanhe = '' THEN
+        RAISE EXCEPTION 'Quan hệ khồng được để trống.';
+    END IF;
+    
+    IF p_quanhe NOT IN ('Cha', 'Mẹ', 'Anh', 'Chị', 'Em', 'Bác', 'Dì', 'Chú', 'Cô', 'Ông', 'Bà') THEN
+        RAISE EXCEPTION 'Quan hệ với bệnh nhi phải là: ''Cha'', ''Mẹ'', ''Anh'', ''Chị'', ''Em'', ''Bác'', ''Dì'', ''Chú'', ''Cô'', ''Ông'', ''Bà''';
+    END IF;
+    
+    
+    INSERT INTO GIAM_HO (CCCD, MASO_BN, QUANHE) 
+    VALUES (p_cccd, b_maso, p_quanhe);
+    
+    RAISE NOTICE 'Thêm quan hệ  giữa phụ huynh và bệnh nhi thành công!';
+END;
+$$;
+
+-- Ví dụ
+-- CALL InsertGiamHo(
+--     '123456789012',
+--     '159ad795-6338-4990-a643-f84da4c555c4',
+--     'Chú'
+-- );
