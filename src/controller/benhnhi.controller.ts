@@ -136,12 +136,12 @@ class BenhnhiController {
     if (!maso) {
       return res.status(400).json({ message: 'Missing maso' })
     }
-    // console.log(maso)
+    console.log(maso)
     try {
-      const pills = await db.query('SELECT * FROM get_pills_for_child($1::uuid);', [maso])
+      const pills = await db.query('SELECT * FROM public.get_pills_for_child($1::uuid);', [maso]);
       return res.status(200).json({ pills: pills.rows })
     } catch (error) {
-      // console.log(error)
+      console.log(error)
       // console.log((error as any).error)
       return res.status(400).json({ message: 'Something went wrong', error })
     }

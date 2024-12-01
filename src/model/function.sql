@@ -151,6 +151,7 @@ SELECT * FROM get_bkb_in_date_range('345678901234', '2024-01-01', '2025-01-31');
 CREATE OR REPLACE FUNCTION get_phuhuynh_from_hoadon(input_mahoadon UUID)
 RETURNS TABLE(
     hoten_ph VARCHAR(100),
+    cccd_ph VARCHAR(100),
     hoten_bn VARCHAR(255),
     quanhe VARCHAR(50),
     ngaytao DATE
@@ -159,6 +160,7 @@ BEGIN
     RETURN QUERY
     SELECT
         ph.hoten AS hoten_ph,
+        ph.cccd AS cccd_ph,
         bn.hoten AS hoten_bn,
         gh.quanhe AS quanhe,
         hd.ngaytao::DATE as ngaytao
