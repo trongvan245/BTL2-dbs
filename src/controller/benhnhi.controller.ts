@@ -67,7 +67,6 @@ class BenhnhiController {
       );
 
       // Add guardian relationship
-      console.log(result);
       const maso_bn = result.rows[0].p_maso;
       
       await db.query(

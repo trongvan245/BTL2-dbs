@@ -300,3 +300,120 @@ $$;
 --     '159ad795-6338-4990-a643-f84da4c555c4',
 --     'Chú'
 -- );
+
+------------------------------------------------------------------
+------------------------------------------------------------------
+-- Thêm dữ liệu vào bảng THUOC
+
+CREATE OR REPLACE PROCEDURE InsertThuoc(
+    IN p_ten VARCHAR(100),
+    IN p_dang VARCHAR(50),
+    IN p_giaca BIGINT,
+    OUT p_maso UUID
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF p_ten IS NULL OR p_ten = '' THEN
+        RAISE EXCEPTION 'Tên thuốc không được để trống.';
+    END IF;
+
+    IF p_dang NOT IN ('Viên', 'Chai', 'Hộp', 'Ống', 'Lọ', 'Gói', 'Hủ', 'Túi', 'Vỉ', 'Khác') THEN
+        RAISE EXCEPTION 'Dạng thuốc không hợp lệ. Các giá trị hợp lệ: ''Viên'', ''Chai'', ''Hộp'', ''Ống'', ''Lọ'', ''Gói'', ''Hủ'', ''Túi'', ''Vỉ'', ''Khác''.';
+    END IF;
+
+    IF p_giaca < 0 THEN
+        RAISE EXCEPTION 'Giá cả phải lớn hơn hoặc bằng 0.';
+    END IF;
+
+    INSERT INTO THUOC (TEN, DANG, GIACA)
+    VALUES (p_ten, p_dang, p_giaca)
+    RETURNING MASO INTO p_maso;
+
+    RAISE NOTICE 'Thuốc "%: % - %d" đã được thêm thành công.', p_ten, p_dang, p_giaca;
+END;
+$$;
+
+-- Ví dụ:
+-- CALL InsertThuoc('Acetuss 200mg/10ml', 'Ống', 7169, NULL);
+-- CALL InsertThuoc('Cefurich 500mg','Viên',13900, NULL);
+
+-- Cập nhật dữ liệu bảng THUOC
+CREATE OR REPLACE PROCEDURE UpdateThuoc(
+    IN p_maso UUID,
+    IN p_ten VARCHAR(100),
+    IN p_dang VARCHAR(50),
+    IN p_giaca BIGINT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    old_ten VARCHAR(100);
+    old_dang VARCHAR(50);
+    old_giaca BIGINT;
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM THUOC WHERE MASO = p_maso) THEN
+        RAISE EXCEPTION 'Không tìm thấy thuốc với mã số %.', p_maso;
+    END IF;
+
+    IF p_ten = '' THEN
+        p_ten := NULL;
+    END IF;
+    IF p_dang = '' THEN
+        p_dang := NULL;
+    END IF;
+
+    SELECT TEN, DANG, GIACA
+    INTO old_ten, old_dang, old_giaca
+    FROM THUOC
+    WHERE MASO = p_maso;
+
+    p_ten := COALESCE(p_ten, old_ten);
+    p_dang := COALESCE(p_dang, old_dang);
+    p_giaca := COALESCE(p_giaca, old_giaca);
+
+    IF p_ten IS NOT NULL AND p_ten = '' THEN
+        RAISE EXCEPTION 'Tên thuốc không được để trống.';
+    END IF;
+
+    IF p_dang IS NOT NULL AND p_dang NOT IN ('Viên', 'Chai', 'Hộp', 'Ống', 'Lọ', 'Gói', 'Hủ', 'Túi', 'Vỉ', 'Khác') THEN
+        RAISE EXCEPTION 'Dạng thuốc không hợp lệ. Các giá trị hợp lệ: ''Viên'', ''Chai'', ''Hộp'', ''Ống'', ''Lọ'', ''Gói'', ''Hủ'', ''Túi'', ''Vỉ'', ''Khác''.';
+    END IF;
+
+    IF p_giaca IS NOT NULL AND p_giaca < 0 THEN
+        RAISE EXCEPTION 'Giá cả phải lớn hơn hoặc bằng 0.';
+    END IF;
+
+    UPDATE THUOC
+    SET TEN = p_ten,
+        DANG = p_dang,
+        GIACA = p_giaca
+    WHERE MASO = p_maso;
+
+    RAISE NOTICE 'Thông tin thuốc với mã số "%" đã được cập nhật.', p_maso;
+END;
+$$;
+
+-- Ví dụ
+-- CALL UpdateThuoc('e9b69318-4400-42b8-a305-78e29d126ccd','','Viên',13900);
+
+-- Xóa dữ liệu bảng THUOC
+CREATE OR REPLACE PROCEDURE DeleteThuoc(
+    IN p_maso UUID
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM THUOC WHERE MASO = p_maso) THEN
+        RAISE EXCEPTION 'Không tìm thấy thuốc với mã số %.', p_maso;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM SO_LUONG_THUOC WHERE MASO_TH = p_maso) THEN
+        RAISE EXCEPTION 'Thuốc với mã số % đang được sử dụng trong bảng SO_LUONG_THUOC và không thể xóa.', p_maso;
+    END IF;
+
+    DELETE FROM THUOC WHERE MASO = p_maso;
+
+    RAISE NOTICE 'Thuốc với mã số % đã được xóa thành công.', p_maso;
+END;
+$$;
