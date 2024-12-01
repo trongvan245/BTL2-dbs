@@ -19,9 +19,13 @@ class SoluongthuocController {
     const query = `
         INSERT INTO SO_LUONG_THUOC (MASO_BKB, MASO_TH, SOLUONG, CACHSD)
         VALUES ($1, $2, $3, $4)
+        RETURNING *;
       `
     const result = await db.query(query, [MASO_BKB, MASO_TH, SOLUONG, CACHSD])
-    return res.status(201).json(result.rows[0])
+    res.status(201).json({
+      message: 'Soluongthuoc added successfully',
+      data: result.rows[0]
+    })
   }
 
   /**

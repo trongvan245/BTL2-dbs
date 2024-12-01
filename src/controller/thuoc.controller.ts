@@ -29,7 +29,7 @@ class ThuocController {
       `
       const result = await db.query(query, [ten, dang, giaca])
 
-      res.status(201).json({
+      return res.status(201).json({
         message: 'The drug is added successfully',
         data: result.rows[0] // MASO thuoc
       })
