@@ -9,11 +9,11 @@ class SoluongthuocController {
     const { MASO_BKB, MASO_TH, SOLUONG, CACHSD } = req.body
 
     if (!MASO_BKB || !MASO_TH || !SOLUONG || !CACHSD) {
-      return res.status(400).json({ message: 'All fields are required.' })
+      return res.status(400).json({ message: 'Tất cả các trường là bắt buộc.' })
     }
 
     if (SOLUONG <= 0) {
-      return res.status(400).json({ message: 'SOLUONG must be greater than 0.' })
+      return res.status(400).json({ message: 'Số lượng phải lớn hơn 0.' })
     }
 
     const query = `
@@ -33,7 +33,7 @@ class SoluongthuocController {
     if (!MASO_BKB || !MASO_TH || (!SOLUONG && !CACHSD)) {
       return res
         .status(400)
-        .json({ message: 'MASO_BKB, MASO_TH and at least one update field (SOLUONG or CACHSD) are required.' })
+        .json({ message: 'MASO_BKB, MASO_TH và ít nhất một trường cập nhật (SOLUONG hoặc CACHSD) là bắt buộc.' })
     }
 
     const updates: string[] = []
@@ -41,7 +41,7 @@ class SoluongthuocController {
 
     if (SOLUONG !== undefined) {
       if (SOLUONG <= 0) {
-        return res.status(400).json({ message: 'SOLUONG must be greater than 0.' })
+        return res.status(400).json({ message: 'Số lượng phải lớn hơn 0.' })
       }
       updates.push(`SOLUONG = $${updates.length + 1}`)
       params.push(SOLUONG)
@@ -62,7 +62,7 @@ class SoluongthuocController {
     const result = await db.query(query, params)
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'Record not found.' })
+      return res.status(404).json({ message: 'Không tìm thấy bản ghi.' })
     }
 
     return res.status(200).json(result.rows[0])

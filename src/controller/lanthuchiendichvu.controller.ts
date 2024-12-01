@@ -8,7 +8,7 @@ class LanthuchiendichvuController {
 
     // Validate required fields
     if (!chuandoan || !ketluan || !maso_bkb || !madichvu || !cccd_nvyt) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
 
     // Insert into LAN_THUC_HIEN_DICH_VU table
@@ -28,7 +28,7 @@ class LanthuchiendichvuController {
 
     // Respond with the newly created record
     res.status(201).json({
-      message: 'Service execution added successfully',
+      message: 'Thêm lần thực hiện dịch vụ thành công',
       data: result.rows[0]
     })
   }
@@ -40,7 +40,7 @@ class LanthuchiendichvuController {
 
     // Validate required fields
     if (!maso || !chuandoan || !ketluan || !maso_bkb || !madichvu || !cccd_nvyt) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
 
     // Update the LAN_THUC_HIEN_DICH_VU table
@@ -60,12 +60,12 @@ class LanthuchiendichvuController {
 
     // If no record is found to update
     if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Record not found' })
+      return res.status(404).json({ message: 'Không tìm thấy bản ghi' })
     }
 
     // Respond with the updated record
     res.status(200).json({
-      message: 'Service execution updated successfully',
+      message: 'Cập nhật lần thực hiện dịch vụ thành công',
       data: result.rows[0]
     })
   }

@@ -8,7 +8,7 @@ class DichvukhamController {
             return res.status(200).json(services.rows);
         } catch (err) {
             const error = err as Error;
-            return res.status(500).json({ message: 'Error retrieving Dich vu kham', error: error.message })
+            return res.status(500).json({ message: 'Lỗi khi lấy dịch vụ khám', error: error.message })
         }
     }
 
@@ -20,7 +20,7 @@ class DichvukhamController {
 
     // Validate required fields
     if (!ten  || !giaca || !mota) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     try {
       const query = `
@@ -29,13 +29,13 @@ class DichvukhamController {
       const result = await db.query(query, [ten, giaca, mota])
 
       res.status(201).json({
-        message: 'The service added successfully',
+        message: 'Thêm dịch vụ thành công',
         data: result.rows[0]
       })
     } catch (err) {
       const error = err as Error;
       return res.status(500).json({ 
-        message: 'Error adding Service', 
+        message: 'Lỗi khi thêm dịch vụ', 
         error: error.message 
       })
     }
@@ -45,10 +45,10 @@ class DichvukhamController {
     const { madichvu, ten, giaca, mota } = req.body
 
     if (!madichvu) {
-        return res.status(400).json({ message: 'Missing service ID field' })
+        return res.status(400).json({ message: 'Thiếu mã dịch vụ' })
       }
     if (!ten || !giaca || !mota) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     
     try {
@@ -65,16 +65,16 @@ class DichvukhamController {
       const result = await db.query(query, [madichvu, ten, giaca, mota])
 
       if (result.rowCount === 0) {
-        return res.status(404).json({ message: 'Service ID is not found' })
+        return res.status(404).json({ message: 'Không tìm thấy mã dịch vụ' })
       }
 
       res.status(200).json({
-        message: 'Service updated successfully',
+        message: 'Cập nhật dịch vụ thành công',
         data: result.rows[0]
       })
     }  catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error updating service', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi cập nhật dịch vụ', error: error.message });
     }
   }
 }
