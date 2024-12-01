@@ -10,7 +10,7 @@ class BenhnhiController {
       return res.status(200).json(benhnhi.rows);
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error retrieving Benh Nhi', error: error.message })
+      return res.status(500).json({ message: 'Lỗi khi lấy danh sách Bệnh Nhi', error: error.message })
     }
   }
 
@@ -19,17 +19,17 @@ class BenhnhiController {
   static async getBenhnhiByMaso(req: Request, res: Response) {
     const { maso } = req.params
     if (!maso) {
-      return res.status(400).json({ message: 'Missing Benh Nhi maso' })
+      return res.status(400).json({ message: 'Thiếu mã số Bệnh Nhi' })
     }
     try {
       const benhnhi = await db.query('SELECT * FROM BENH_NHI WHERE MASO = $1;', [maso]);
       if (benhnhi.rows.length === 0) {
-        return res.status(404).json({ message: 'Benh Nhi not found' });
+        return res.status(404).json({ message: 'Không tìm thấy Bệnh Nhi' });
       }
       return res.status(200).json(benhnhi.rows[0]);
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error retrieving Benh Nhi', error: error.message })
+      return res.status(500).json({ message: 'Lỗi khi lấy thông tin Bệnh Nhi', error: error.message })
     }
   }
 
@@ -38,7 +38,7 @@ class BenhnhiController {
   static async getBenhnhiByCCCD(req: Request, res: Response) {
     const { cccd } = req.params;
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing CCCD phu huynh cua Benh Nhi' });
+      return res.status(400).json({ message: 'Thiếu CCCD phụ huynh của Bệnh Nhi' });
     }
     try {
       const benhnhi = await db.query(
@@ -48,7 +48,7 @@ class BenhnhiController {
       return res.status(200).json(benhnhi.rows);
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error retrieving patients', error: error.message })
+      return res.status(500).json({ message: 'Lỗi khi lấy danh sách Bệnh Nhi', error: error.message })
     }
   }
 
@@ -57,7 +57,7 @@ class BenhnhiController {
   static async addBenhnhi(req: Request, res: Response) {
     const { hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt, cccd, quanhe } = req.body
     if (!hoten || !ngaysinh || !chieucao || !cannang || !cccd || !quanhe) {
-      return res.status(400).json({ message: 'Missing required fields' });
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
     }
     try {
       // Call InsertBenhNhi procedure
@@ -75,13 +75,13 @@ class BenhnhiController {
       );
 
       res.status(201).json({
-        message: 'Benh Nhi added successfully',
+        message: 'Thêm Bệnh Nhi thành công',
         data: { maso_bn, hoten, quanhe, phuhuynh_cccd: cccd }
       });
     } catch (err) {
       const error = err as Error;
       return res.status(500).json({ 
-        message: 'Error adding Benh Nhi', 
+        message: 'Lỗi khi thêm Bệnh Nhi', 
         error: error.message 
       })
     }
@@ -91,7 +91,7 @@ class BenhnhiController {
   static async updateBenhnhi(req: Request, res: Response) {
     const { maso, hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt } = req.body
     if (!maso) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
     try {
       // Call UpdateBenhNhi procedure
@@ -100,10 +100,10 @@ class BenhnhiController {
         [maso, hoten, ngaysinh, gioitinh, chieucao, cannang, tiensubenh, masobhyt]
       );
 
-      return res.status(200).json({ message: 'Benh Nhi updated successfully' });
+      return res.status(200).json({ message: 'Cập nhật Bệnh Nhi thành công' });
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error updating Benh Nhi', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi cập nhật Bệnh Nhi', error: error.message });
     }
   }
 
@@ -111,25 +111,25 @@ class BenhnhiController {
   static async deleteBenhnhi(req: Request, res: Response) {
     const { maso } = req.body
     if (!maso) {
-      return res.status(400).json({ message: 'Missing maso Benh Nhi' })
+      return res.status(400).json({ message: 'Thiếu mã số Bệnh Nhi' })
     }
     try {
       // Call DeleteBenhNhi procedure
       const result = await db.query(`CALL DeleteBenhNhi($1);`, [maso]);
       return res.status(200).json({
-        message: 'Benh Nhi deleted successfully',
+        message: 'Xóa Bệnh Nhi thành công',
         data: result.rows[0]
       })
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error deleting Benh Nhi', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi xóa Bệnh Nhi', error: error.message });
     }
   }
 
   static async getPillsByMaso(req: Request, res: Response) {
     const { maso } = req.params
     if (!maso) {
-      return res.status(400).json({ message: 'Missing maso' })
+      return res.status(400).json({ message: 'Thiếu mã số' })
     }
     // console.log(maso)
     try {
@@ -138,7 +138,7 @@ class BenhnhiController {
     } catch (error) {
       // console.log(error)
       // console.log((error as any).error)
-      return res.status(400).json({ message: 'Something went wrong', error })
+      return res.status(400).json({ message: 'Có lỗi xảy ra', error })
     }
   }
 }

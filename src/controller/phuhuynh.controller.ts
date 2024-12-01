@@ -13,7 +13,7 @@ class PhuhuynhController {
   static async getPhuhuynhByCCCD(req: Request, res: Response) {
     const { cccd } = req.params
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing cccd' })
+      return res.status(400).json({ message: 'Thiếu CCCD' })
     }
     const phuhuynh = await db.query('SELECT * FROM PHU_HUYNH WHERE CCCD = $1;', [cccd])
 
@@ -27,7 +27,7 @@ class PhuhuynhController {
 
     // Basic validation (you can add more checks here)
     if (!cccd || !hoten || !sdt || !huyen || !tinh) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
 
     // SQL query to insert the new data into the PHU_HUYNH table
@@ -43,12 +43,12 @@ class PhuhuynhController {
 
       // Respond with the newly created record
       res.status(201).json({
-        message: 'Phu Huynh added successfully',
+        message: 'Thêm Phụ Huynh thành công',
         data: result.rows[0]
       })
     } catch (error) {
-      console.error('Error inserting Phu Huynh:', error)
-      res.status(500).json({ message: 'Error adding Phu Huynh', error })
+      console.error('Lỗi khi thêm Phụ Huynh:', error)
+      res.status(500).json({ message: 'Lỗi khi thêm Phụ Huynh', error })
     }
   }
   // router.put("/update", asyncHandler(async (req, res) => {}));
@@ -58,7 +58,7 @@ class PhuhuynhController {
 
     // Basic validation (you can add more checks here)
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
 
     // SQL query to update the data in the PHU_HUYNH table
@@ -75,12 +75,12 @@ class PhuhuynhController {
 
       // Respond with the updated record
       res.status(200).json({
-        message: 'Phu Huynh updated successfully',
+        message: 'Cập nhật Phụ Huynh thành công',
         data: result.rows[0]
       })
     } catch (error) {
-      console.error('Error updating Phu Huynh:', error)
-      res.status(500).json({ message: 'Error updating Phu Huynh', error })
+      console.error('Lỗi khi cập nhật Phụ Huynh:', error)
+      res.status(500).json({ message: 'Lỗi khi cập nhật Phụ Huynh', error })
     }
   }
   // router.delete("/delete", asyncHandler(async (req, res) => {}));
@@ -90,12 +90,12 @@ class PhuhuynhController {
 
     // Basic validation (you can add more checks here)
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' })
     }
 
     const phuhuynh = await db.query('SELECT * FROM PHU_HUYNH WHERE CCCD = $1', [cccd])
     if (phuhuynh.rows.length === 0) {
-      return res.status(404).json({ message: 'Phu Huynh not found' })
+      return res.status(404).json({ message: 'Không tìm thấy Phụ Huynh' })
     }
 
     // SQL query to delete the data from the PHU_HUYNH table
@@ -110,12 +110,12 @@ class PhuhuynhController {
 
       // Respond with the deleted record
       res.status(200).json({
-        message: 'Phu Huynh deleted successfully',
+        message: 'Xóa Phụ Huynh thành công',
         data: result.rows[0]
       })
     } catch (error) {
-      console.error('Error deleting Phu Huynh:', error)
-      res.status(500).json({ message: 'Error deleting Phu Huynh', error })
+      console.error('Lỗi khi xóa Phụ Huynh:', error)
+      res.status(500).json({ message: 'Lỗi khi xóa Phụ Huynh', error })
     }
   }
 
@@ -123,7 +123,7 @@ class PhuhuynhController {
     const { cccd } = req.params
 
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing cccd' })
+      return res.status(400).json({ message: 'Thiếu CCCD' })
     }
     const benhnhi = await db.query('SELECT * FROM GIAM_HO WHERE CCCD = $1;', [cccd])
 
@@ -133,7 +133,7 @@ class PhuhuynhController {
   static async getPendingFee(req: Request, res: Response) {
     const { cccd } = req.params
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing cccd' })
+      return res.status(400).json({ message: 'Thiếu CCCD' })
     }
     const result = await db.query('SELECT calculate_pending_tongtien($1)', [cccd])
     const pending_fee = result.rows[0].calculate_pending_tongtien
@@ -146,7 +146,7 @@ class PhuhuynhController {
     const { cccd } = req.params
     console.log(cccd)
     if (!cccd) {
-      return res.status(400).json({ message: 'Missing cccd' })
+      return res.status(400).json({ message: 'Thiếu CCCD' })
     }
     const result = await db.query('SELECT calculate_done_tongtien($1)', [cccd])
     const done_fee = result.rows[0].calculate_done_tongtien

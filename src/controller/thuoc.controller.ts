@@ -9,7 +9,7 @@ class ThuocController {
             return res.status(200).json(services.rows);
         } catch (err) {
             const error = err as Error;
-            return res.status(500).json({ message: 'Error retrieving Dich vu kham', error: error.message })
+            return res.status(500).json({ message: 'Lỗi khi truy xuất dịch vụ khám', error: error.message })
         }
     }
 
@@ -21,7 +21,7 @@ class ThuocController {
 
     // Validate required fields
     if (!ten  || !dang || !giaca) {
-      return res.status(400).json({ message: 'Missing required fields' })
+      return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     try {
       const query = `
@@ -29,13 +29,13 @@ class ThuocController {
       `
       const result = await db.query(query, [ten, dang, giaca])
 
-      return res.status(201).json({
-        message: 'The drug is added successfully',
+      res.status(201).json({
+        message: 'Thêm thuốc thành công',
         data: result.rows[0] // MASO thuoc
       })
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error adding drug', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi thêm thuốc', error: error.message });
     }
   }
   // router.put('/update', asyncHandler(ThuocController.updateDrug))
@@ -43,7 +43,7 @@ class ThuocController {
     const { maso, ten, dang, giaca } = req.body
 
     if (!maso) {
-      return res.status(400).json({ message: 'Missing Drug ID field' })
+      return res.status(400).json({ message: 'Thiếu mã số thuốc' })
     }
   
     try {
@@ -51,10 +51,10 @@ class ThuocController {
         CALL UpdateThuoc ($1, $2, $3, $4);
       `
       await db.query(query, [maso, ten, dang, giaca])
-      return res.status(200).json({ message: 'Drug updated successfully' });
+      return res.status(200).json({ message: 'Cập nhật thuốc thành công' });
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error updating drug', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi cập nhật thuốc', error: error.message });
     }
 
   }
@@ -64,17 +64,17 @@ class ThuocController {
     const { maso } = req.body
     console.log(maso)
     if (!maso) {
-      return res.status(400).json({ message: 'Missing Drug ID' })
+      return res.status(400).json({ message: 'Thiếu mã số thuốc' })
     }
     try {
       const result = await db.query(`CALL DeleteThuoc($1);`, [maso]);
       return res.status(200).json({
-        message: 'Drug deleted successfully',
+        message: 'Xóa thuốc thành công',
         data: result.rows[0]
       })
     } catch (err) {
       const error = err as Error;
-      return res.status(500).json({ message: 'Error deleting Drug', error: error.message });
+      return res.status(500).json({ message: 'Lỗi khi xóa thuốc', error: error.message });
     }
   }
 }
