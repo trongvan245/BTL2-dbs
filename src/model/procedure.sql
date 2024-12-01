@@ -130,8 +130,8 @@ BEGIN
       RAISE EXCEPTION 'Bệnh nhi phải dưới 18 tuổi';
   END IF;
   
-  IF p_gioitinh NOT IN ('F', 'M') THEN
-      RAISE EXCEPTION 'Giới tính phải là "F" (Nữ) hoặc "M" (Nam).';
+  IF p_gioitinh NOT IN ('Nam', 'Nữ') THEN
+      RAISE EXCEPTION 'Giới tính phải là Nam hoặc Nữ.';
   END IF;
 
   IF p_chieucao <= 0 OR p_chieucao >= 1000 THEN
@@ -199,3 +199,6 @@ BEGIN
     RAISE NOTICE 'Đã xóa thành công bệnh nhi với mã số % và tất cả dữ liệu liên quan', p_maso;
 END;
 $$;
+
+
+
