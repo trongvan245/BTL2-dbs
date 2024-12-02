@@ -10,5 +10,6 @@ router.post('/add', asyncHandler(BenhnhiController.addBenhnhi))
 router.put('/update', asyncHandler(BenhnhiController.updateBenhnhi))
 router.delete('/delete', asyncHandler(BenhnhiController.deleteBenhnhi))
 router.get('/pill/:maso', asyncHandler(BenhnhiController.getPillsByMaso))
+router.get('/pillv2/:maso', asyncHandler(BenhnhiController.getSpecificPillByMaso))
 
 export default router

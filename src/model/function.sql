@@ -148,6 +148,47 @@ $$ LANGUAGE plpgsql;
 SELECT * FROM get_pills_for_child('e0be6c97-f834-4a73-8df4-bf06f782eec3'::uuid);
 
 
+CREATE OR REPLACE FUNCTION get_specific_pills_for_child(child_id_input UUID)
+RETURNS TABLE(
+    ms UUID, 
+    ten VARCHAR(100), 
+    dang VARCHAR(50), 
+    so_luong NUMERIC,
+    thoi_gian_kham DATE,
+    thoi_gian_ra_don DATE
+) AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM BENH_NHI WHERE maso = child_id_input) THEN
+        RAISE EXCEPTION 'Không tìm thấy bệnh nhi với mã số %', child_id_input;
+    END IF;
+    RETURN QUERY
+    SELECT
+        t.maso AS ms,
+        t.ten,
+        t.dang,
+        slg.soluong::NUMERIC AS so_luong,
+        bkb.ngaykham::DATE AS thoi_gian_kham,
+        dt.thoigianradon::DATE AS thoi_gian_ra_don
+    FROM
+        "benh_nhi" bn
+    JOIN
+        "buoi_kham_benh" bkb ON bn.maso = bkb.maso_bn
+    JOIN
+        "so_luong_thuoc" slg ON bkb.maso = slg.maso_bkb
+    JOIN
+        "don_thuoc" dt on dt.maso_bkb = bkb.maso
+    JOIN
+        "thuoc" t ON slg.maso_th = t.maso
+    WHERE
+        bn.maso = child_id_input;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+SELECT * FROM get_specific_pills_for_child('e0be6c97-f834-4a73-8df4-bf06f782eec3'::uuid);
+
+
 CREATE OR REPLACE FUNCTION get_sum_fee_for_child(parent_cccd_input VARCHAR)
 RETURNS TABLE(child_name VARCHAR, maso_bn UUID, total_drug_fee NUMERIC, total_service NUMERIC, total_fee NUMERIC) AS $$
 BEGIN
