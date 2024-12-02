@@ -14,6 +14,15 @@ class BacSiController {
       return res.status(400).json({ message: 'Something went wrong', error })
     }
   }
+  static async getAllDoctors(req: Request, res: Response) {
+    try {
+      const doctors = await db.query('SELECT NV.hoten, BS.chuyenkhoa, BS.bangcap FROM NHAN_VIEN NV, BAC_SI BS WHERE NV.CCCD = BS.CCCD');
+      return res.status(200).json(doctors.rows);
+  } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ message: 'Lỗi khi truy xuất danh sách bác sĩ', error: error.message })
+  }
+  }
 }
 
 export default BacSiController

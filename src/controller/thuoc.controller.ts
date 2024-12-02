@@ -9,7 +9,7 @@ class ThuocController {
             return res.status(200).json(services.rows);
         } catch (err) {
             const error = err as Error;
-            return res.status(500).json({ message: 'Lỗi khi truy xuất dịch vụ khám', error: error.message })
+            return res.status(500).json({ message: 'Lỗi khi truy xuất danh sách thuốc', error: error.message })
         }
     }
 
