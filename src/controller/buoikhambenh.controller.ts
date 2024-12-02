@@ -25,7 +25,7 @@ class BuoiKhamBenhController {
     if (!maso) {
       return res.status(400).json({ message: 'Thiếu mã số' })
     }
-    const query = 'SELECT * FROM BUOI_KHAM_BENH WHERE MASO = $1;'
+    const query = 'SELECT * FROM BUOI_KHAM_BENH B JOIN BAC_SI BS ON B.cccd_bs = BS.CCCD  WHERE MASO = $1;'
     const result = await db.query(query, [maso])
 
     const donthuoc = await db.query(
@@ -38,12 +38,15 @@ class BuoiKhamBenhController {
       [maso]
     )
 
+    const hoadon = await db.query('SELECT * FROM HOA_DON WHERE MASO_BKB = $1;', [maso])
+
     console.log(result.rows[0])
 
     res.status(200).json({
       buoikhambenh: result.rows[0],
       donthuoc: donthuoc.rows,
-      lanthuchiendichvu: lanthuchiendichvu.rows
+      lanthuchiendichvu: lanthuchiendichvu.rows,
+      hoadon: hoadon.rows.length > 0 ? hoadon.rows[0] : null
     })
   }
 

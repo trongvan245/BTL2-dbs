@@ -83,3 +83,8 @@ CREATE OR REPLACE TRIGGER update_tongtien_after_medicine_trigger
 after INSERT OR UPDATE OR DELETE ON SO_LUONG_THUOC
 FOR EACH ROW
 EXECUTE FUNCTION update_tongtiendonthuoc();
+
+CREATE OR REPLACE TRIGGER update_tongtien_after_don_thuoc_trigger
+BEFORE INSERT ON HOA_DON
+FOR EACH ROW
+EXECUTE FUNCTION update_tongtiendonthuoc();

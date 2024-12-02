@@ -1,6 +1,11 @@
 import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 class HoadonController {
+  static async getAllHoadon(req: Request, res: Response) {
+    const hoadon = await db.query('SELECT ngaytao,tongtien,ghichu, P.hoten as nguoithanhtoan, N.hoten as thungan FROM HOA_DON H JOIN PHU_HUYNH P ON H.CCCD_PH = P.CCCD JOIN NHAN_VIEN N ON N.CCCD = H.CCCD_TN;')
+    res.status(200).json(hoadon.rows)
+  }
+
   static async getHoadon(req: Request, res: Response) {
     const mahoadon = req.params.mahoadon
     if (!mahoadon) {
@@ -46,20 +51,26 @@ class HoadonController {
   }
   //router.post('/add', asyncHandler(HoadonController.addHoadon))
   static async addHoadon(req: Request, res: Response) {
-    const { maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai } = req.body
+    const { maso_bkb, ghichu, cccd_ph, cccd_tn, trangthai } = req.body
 
     // Validate required fields
-    if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn || !trangthai) {
+    if (!maso_bkb || !cccd_ph || !cccd_tn || !trangthai) {
       return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     const result = await db.query(
-      'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN, TRANGTHAI) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;',
-      [maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai]
+      'INSERT INTO HOA_DON (MASO_BKB, GHICHU, CCCD_PH, CCCD_TN, TRANGTHAI) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
+      [maso_bkb, ghichu, cccd_ph, cccd_tn, trangthai]
     )
+    if (result.rows.length === 0) {
+      // If no rows are returned
+      return res.status(500).json({ message: 'Failed to insert data', data: result })
+    }
+
+    const hoadon = await db.query('SELECT * FROM HOA_DON WHERE MAHOADON = $1;', [result.rows[0].mahoadon])
 
     res.status(201).json({
       message: 'Thêm hóa đơn thành công',
-      data: result.rows[0]
+      data: hoadon.rows[0]
     })
   }
   // router.put('/update', asyncHandler(HoadonController.updateHoadon))
