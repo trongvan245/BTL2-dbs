@@ -74,16 +74,48 @@ $$ LANGUAGE plpgsql;
 
 SELECT tinh_tonghoadon_trong_thoigian('2024-11-23', '2024-11-23');
 
+CREATE OR REPLACE FUNCTION get_hoadon_in_day_range(from_date DATE, to_date DATE)
+RETURNS TABLE(
+    maso UUID,
+    ngaytao DATE,
+    tongtien NUMERIC,
+    maso_bkb UUID,
+    hoten_bn VARCHAR(255),
+    hoten_ph VARCHAR(100)
+) AS $$
+BEGIN
+    -- Ensure the date range is valid
+    IF from_date > to_date THEN
+        RAISE EXCEPTION 'Invalid date range: from_date % is later than to_date %', from_date, to_date;
+    END IF;
+
+    -- Return all rows where ngaytao is within the range (inclusive)
+    RETURN QUERY
+    SELECT 
+      hd.mahoadon AS maso, 
+      hd.ngaytao::DATE AS ngaytao, 
+      hd.tongtien::NUMERIC AS tongtien, 
+      hd.maso_bkb AS maso_bkb,
+      bn.hoten::VARCHAR(255) AS hoten_bn,
+      ph.hoten::VARCHAR(100) AS hoten_ph
+    FROM "hoa_don" hd
+    JOIN "buoi_kham_benh" bkb ON hd.maso_bkb = bkb.maso
+    JOIN "benh_nhi" bn ON bkb.maso_bn = bn.maso
+    JOIN "phu_huynh" ph ON hd.cccd_ph = ph.cccd
+    WHERE hd.ngaytao BETWEEN from_date AND to_date;
+END;
+$$ LANGUAGE plpgsql;
 
 
+SELECT * FROM get_hoadon_in_day_range('2024-11-23', '2024-11-23');
 
 CREATE OR REPLACE FUNCTION get_pills_for_child(child_id_input UUID)
 RETURNS TABLE(
     ms UUID, 
     ten VARCHAR(100), 
     dang VARCHAR(50), 
-    giaca BIGINT,
-    soluong INT
+    tong_so_luong NUMERIC,
+    tong_gia_tien NUMERIC
 ) AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM BENH_NHI WHERE maso = child_id_input) THEN
@@ -94,8 +126,8 @@ BEGIN
         t.maso AS ms,
         t.ten,
         t.dang,
-        t.giaca,
-        slg.soluong as soluong
+        COALESCE(SUM(slg.soluong), 0)::NUMERIC AS tong_so_luong,
+        COALESCE(SUM(slg.soluong * t.giaca), 0)::NUMERIC AS tong_gia_tien
     FROM
         "benh_nhi" bn
     JOIN
@@ -105,9 +137,15 @@ BEGIN
     JOIN
         "thuoc" t ON slg.maso_th = t.maso
     WHERE
-        bn.maso = child_id_input;
+        bn.maso = child_id_input
+    GROUP BY
+        t.maso, t.ten, t.dang;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+SELECT * FROM get_pills_for_child('e0be6c97-f834-4a73-8df4-bf06f782eec3'::uuid);
 
 
 CREATE OR REPLACE FUNCTION get_sum_fee_for_child(parent_cccd_input VARCHAR)
@@ -181,6 +219,37 @@ $$ LANGUAGE plpgsql;
 
 
 SELECT * FROM get_bkb_in_date_range('345678901234', '2024-01-01', '2025-01-31');
+
+
+
+
+
+-- CREATE OR REPLACE FUNCTION get_pill_list()
+-- RETURNS TABLE( 
+--   maso_thuoc UUID, 
+--   tong_so_luong NUMERIC, 
+--   tong_gia_tien NUMERIC
+--   ) 
+-- AS $$
+-- BEGIN
+--     RETURN QUERY
+--         SELECT 
+--             t.maso as maso_thuoc,
+--             COALESCE(SUM(slg.soluong), 0) AS tong_so_luong,
+--             COALESCE(SUM(slg.soluong * t.giaca), 0) AS tong_gia_tien
+--         FROM 
+--             "thuoc" t
+--         JOIN
+--             "so_luong_thuoc" slg ON t.maso = slg.maso_th
+--         GROUP BY
+--           t.maso, t.ten;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+
+-- SELECT * FROM get_pill_list();
+
+
 
 
 CREATE OR REPLACE FUNCTION get_phuhuynh_from_hoadon(input_mahoadon UUID)
