@@ -141,6 +141,23 @@ class BenhnhiController {
       return res.status(400).json({ message: 'Có lỗi xảy ra', error })
     }
   }
+
+  
+  static async getSpecificPillByMaso(req: Request, res: Response) {
+    const { maso } = req.params
+    if (!maso) {
+      return res.status(400).json({ message: 'Thiếu mã số' })
+    }
+    console.log(maso)
+    try {
+      const pills = await db.query('SELECT * FROM public.get_specific_pills_for_child($1::uuid);', [maso]);
+      return res.status(200).json({ pills: pills.rows })
+    } catch (error) {
+      console.log(error)
+      // console.log((error as any).error)
+      return res.status(400).json({ message: 'Có lỗi xảy ra', error })
+    }
+  }
 }
 
 export default BenhnhiController
