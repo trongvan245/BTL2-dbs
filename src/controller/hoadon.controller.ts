@@ -102,5 +102,27 @@ class HoadonController {
       data: result.rows[0]
     })
   }
+
+  static async getSumFeeInDateRange(req: Request, res: Response) {
+    const { from, to } = req.query
+    console.log(from, to)
+    try {
+      const fee = await db.query('SELECT tinh_tonghoadon_trong_thoigian($1, $2);', [from, to])
+      return res.status(200).json({ total_fee: fee.rows[0].tinh_tonghoadon_trong_thoigian })
+    } catch (error) {
+      return res.status(400).json({ message: 'Something went wrong', error })
+    }
+  }
+
+  static async getAllFee(req: Request, res: Response) {
+    const { from, to } = req.query
+    console.log(from, to)
+    try {
+      const fee = await db.query('SELECT * FROM get_hoadon_in_day_range($1, $2);', [from, to])
+      return res.status(200).json({ rows: fee.rows })
+    } catch (error) {
+      return res.status(400).json({ message: 'Something went wrong', error })
+    }
+  }
 }
 export default HoadonController

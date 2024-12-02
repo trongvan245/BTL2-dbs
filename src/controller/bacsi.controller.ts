@@ -2,7 +2,8 @@ import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 class BacSiController {
   static async getBKBByDay(req: Request, res: Response) {
-    const { cccd, from, to } = req.body
+    const { cccd, from, to } = req.body.params
+    console.log(cccd, from, to)
     if (!cccd) {
       return res.status(400).json({ message: 'Missing maso' })
     }

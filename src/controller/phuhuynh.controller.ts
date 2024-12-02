@@ -130,6 +130,17 @@ class PhuhuynhController {
     return res.status(200).json(benhnhi.rows)
   }
 
+  static async get_sum_fee_with_child(req: Request, res: Response) {
+    const { cccd } = req.params
+    if (!cccd) {
+      return res.status(400).json({ message: 'Thiếu CCCD' })
+    }
+    const result = await db.query('SELECT * FROM get_sum_fee_for_child($1)', [cccd])
+    console.log(result)
+
+    return res.status(200).json({ result })
+  }
+
   static async getPendingFee(req: Request, res: Response) {
     const { cccd } = req.params
     if (!cccd) {
