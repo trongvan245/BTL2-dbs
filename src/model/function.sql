@@ -36,7 +36,7 @@ BEGIN
         SELECT COALESCE(SUM(tongtien), 0)
         FROM hoa_don
         WHERE cccd_ph = cccd_input
-          AND status = 'PENDING'
+          AND status = 'PENDING'--Deprecated, no status row
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -51,7 +51,7 @@ BEGIN
         SELECT COALESCE(SUM(tongtien), 0)
         FROM hoa_don
         WHERE cccd_ph = cccd_input
-          AND status = 'DONE'
+          AND status = 'DONE' --Deprecated, no status row
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -110,8 +110,43 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION get_sum_fee_for_child(parent_cccd_input VARCHAR)
+RETURNS TABLE(child_name VARCHAR, maso_bn UUID, total_drug_fee NUMERIC, total_service NUMERIC, total_fee NUMERIC) AS $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM PHU_HUYNH WHERE cccd = parent_cccd_input) THEN
+        RAISE EXCEPTION 'Không tìm thấy phu huynh với cccd %', parent_cccd_input;
+    END IF;
+    
+    RETURN QUERY
+        SELECT 
+            bn.hoten AS child_name,
+            bn.maso as maso_bn,
+            COALESCE(SUM(slg.soluong * t.giaca), 0) AS total_drug_fee,
+            COALESCE(SUM(-slg.soluong * t.giaca + hd.tongtien), 0) AS total_service_fee,
+            COALESCE(SUM(hd.tongtien), 0) AS total_fee
+        FROM 
+            "phu_huynh" ph
+        JOIN
+            "giam_ho" gh ON ph.cccd = gh.cccd
+        JOIN
+            "benh_nhi" bn ON gh.maso_bn = bn.maso
+        JOIN
+            "buoi_kham_benh" bkb ON bn.maso = bkb.maso_bn
+        JOIN
+            "hoa_don" hd ON bkb.maso = hd.maso_bkb
+        JOIN
+            "so_luong_thuoc" slg ON bkb.maso = slg.maso_bkb
+        JOIN
+            "thuoc" t ON slg.maso_th = t.maso
+        WHERE
+            ph.cccd = parent_cccd_input
+        GROUP BY
+          bn.hoten, bn.maso;
+END;
+$$ LANGUAGE plpgsql;
 
-SELECT * FROM get_pills_for_child('b4ab5726-f0bc-4c64-86ce-f3a40ee00220'::uuid);
+
+SELECT * FROM get_sum_fee_for_child('123456789012');
 
 
 
@@ -127,7 +162,7 @@ BEGIN
     RETURN QUERY
     SELECT
         bkb.maso AS bkb_maso,
-        bkb.ngaykham,
+        bkb.ngaykham::DATE as ngaykham,
         bkb.trangthai,
         bn.maso AS benh_nhi_maso,
         bn.hoten AS ten_bn
@@ -145,4 +180,40 @@ $$ LANGUAGE plpgsql;
 
 
 
-SELECT * FROM get_bkb_in_date_range('333333333333', '2024-01-01', '2025-01-31');
+SELECT * FROM get_bkb_in_date_range('345678901234', '2024-01-01', '2025-01-31');
+
+
+CREATE OR REPLACE FUNCTION get_phuhuynh_from_hoadon(input_mahoadon UUID)
+RETURNS TABLE(
+    hoten_ph VARCHAR(100),
+    cccd_ph VARCHAR(100),
+    hoten_bn VARCHAR(255),
+    quanhe VARCHAR(50),
+    ngaytao DATE
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        ph.hoten AS hoten_ph,
+        ph.cccd AS cccd_ph,
+        bn.hoten AS hoten_bn,
+        gh.quanhe AS quanhe,
+        hd.ngaytao::DATE as ngaytao
+    FROM
+        "hoa_don" hd
+    JOIN
+        "buoi_kham_benh" bkb ON hd.maso_bkb = bkb.maso
+    JOIN --co the toi uu o day
+        "benh_nhi" bn ON bn.maso = bkb.maso_bn
+    JOIN
+        "giam_ho" gh ON gh.maso_bn = bn.maso
+    JOIN
+        "phu_huynh" ph ON ph.cccd = gh.cccd
+    WHERE
+        hd.mahoadon = input_mahoadon;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+SELECT * FROM get_phuhuynh_from_hoadon('e0be6c97-f834-4a73-8df4-bf06f782eec3'::uuid);
