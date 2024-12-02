@@ -46,15 +46,15 @@ class HoadonController {
   }
   //router.post('/add', asyncHandler(HoadonController.addHoadon))
   static async addHoadon(req: Request, res: Response) {
-    const { maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn } = req.body
+    const { maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai } = req.body
 
     // Validate required fields
-    if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn) {
+    if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn || !trangthai) {
       return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     const result = await db.query(
-      'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
-      [maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn]
+      'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN, TRANGTHAI) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;',
+      [maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai]
     )
 
     res.status(201).json({
@@ -90,6 +90,17 @@ class HoadonController {
       message: 'Cập nhật hóa đơn thành công',
       data: result.rows[0]
     })
+  }
+
+  static async getFeeInDateRange(req: Request, res: Response) {
+    const { from, to } = req.query
+    console.log(from, to)
+    try {
+      const fee = await db.query('SELECT tinh_tonghoadon_trong_thoigian($1, $2);', [from, to])
+      return res.status(200).json({ total_fee: fee.rows[0].tinh_tonghoadon_trong_thoigian })
+    } catch (error) {
+      return res.status(400).json({ message: 'Something went wrong', error })
+    }
   }
 }
 export default HoadonController
