@@ -46,15 +46,15 @@ class HoadonController {
   }
   //router.post('/add', asyncHandler(HoadonController.addHoadon))
   static async addHoadon(req: Request, res: Response) {
-    const { maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn } = req.body
+    const { maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai } = req.body
 
     // Validate required fields
-    if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn) {
+    if (!maso_bkb || !tongtien || !cccd_ph || !cccd_tn || !trangthai) {
       return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
     const result = await db.query(
-      'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN) VALUES ($1, $2, $3, $4, $5) RETURNING *;',
-      [maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn]
+      'INSERT INTO HOA_DON (MASO_BKB, TONGTIEN, GHICHU, CCCD_PH, CCCD_TN, TRANGTHAI) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;',
+      [maso_bkb, tongtien, ghichu, cccd_ph, cccd_tn, trangthai]
     )
 
     res.status(201).json({
