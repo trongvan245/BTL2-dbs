@@ -19,7 +19,7 @@ BEGIN
         RAISE EXCEPTION 'Họ tên bệnh nhi không được để trống.';
     END IF;
     
-    IF NOT ten_bn ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+    IF NOT ten_bn ~ '^[A-Za-zàáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ ]+$' THEN
       RAISE EXCEPTION 'Họ tên bệnh nhi chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
     END IF;
     
@@ -121,7 +121,7 @@ BEGIN
   p_tiensubenh:= COALESCE(p_tiensubenh, old_tiensubenh);
   p_masobhyt  := COALESCE(p_masobhyt, old_masobhyt);
 
-  IF NOT p_ten_bn ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+  IF NOT p_ten_bn ~ '^[A-Za-zàáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ ]+$' THEN
     RAISE EXCEPTION 'Họ tên bệnh nhi chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
   END IF;
  
@@ -224,7 +224,7 @@ BEGIN
         RAISE EXCEPTION 'CCCD phải là chứa đúng 12 số.';
     END IF;
     
-    IF NOT p_hoten ~ '^[A-Za-zÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưăắằẵẳặâấầẫẩậêếềễểệôốồỗổộơớờỡởợýỳỷỹỵÝỲỶỸỴ ]+$' THEN
+    IF NOT p_hoten ~ '^[A-Za-zàáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳỵỷỹýÀÁÃẠẢĂẮẰẲẴẶÂẤẦẨẪẬÈÉẸẺẼÊỀẾỂỄỆĐÌÍĨỈỊÒÓÕỌỎÔỐỒỔỖỘƠỚỜỞỠỢÙÚŨỤỦƯỨỪỬỮỰỲỴỶỸÝ ]+$' THEN
       RAISE EXCEPTION 'Họ tên phụ huynh chỉ được chứa chữ cái và khoảng trắng, không được chứa số hoặc ký tự đặc biệt.';
     END IF;
     
