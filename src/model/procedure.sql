@@ -55,7 +55,7 @@ BEGIN
        masobhyt := NULL;
     END IF;
     IF masobhyt IS NOT NULL AND LENGTH(masobhyt) != 10 THEN
-        RAISE EXCEPTION  'Mã BHYT phải có đúng 10 ký tự.';
+        RAISE EXCEPTION  'Mã BHYT rỗng hoặc phải có đúng 10 ký tự.';
     END IF;
     
     bmi := ROUND(cannang / (chieucao / 100)^2, 2);
@@ -93,7 +93,6 @@ BEGIN
       RAISE EXCEPTION 'Không tìm thấy bệnh nhi với mã số %', p_maso_bn;
   END IF;
   
-
   IF p_ten_bn = '' THEN
     p_ten_bn := NULL;
   END IF;
@@ -106,7 +105,6 @@ BEGIN
   IF p_masobhyt = '' THEN
     p_masobhyt := NULL;
   END IF;
-  
   
   SELECT HOTEN, NGAYSINH, GIOITINH, CHIEUCAO, CANNANG, TIENSUBENH, MASOBHYT
   INTO old_ten_bn, old_ngaysinh, old_gioitinh, old_chieucao, old_cannang, old_tiensubenh, old_masobhyt
@@ -134,8 +132,8 @@ BEGIN
   END IF;
   
   IF p_gioitinh NOT IN ('Nữ', 'Nam') THEN
-        RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
-    END IF;
+      RAISE EXCEPTION 'Giới tính phải là "Nữ" hoặc "Nam".';
+  END IF;
 
   IF p_chieucao <= 0 OR p_chieucao >= 1000 THEN
       RAISE EXCEPTION  'Chiều cao phải lớn hơn 0 cm và nhỏ hơn 1000 cm (tính theo cm).';
@@ -145,8 +143,11 @@ BEGIN
       RAISE EXCEPTION  'Cân nặng phải lớn hơn 0 kg và nhỏ hơn 1000 kg.';
   END IF;
 
-  IF LENGTH(p_masobhyt) != 10 THEN
-      RAISE EXCEPTION  'Mã BHYT phải có đúng 10 ký tự.';
+  IF p_masobhyt = '' THEN
+      p_masobhyt := NULL;
+  END IF;
+  IF p_masobhyt IS NOT NULL AND LENGTH(p_masobhyt) != 10 THEN
+      RAISE EXCEPTION  'Mã BHYT rỗng hoặc phải có đúng 10 ký tự.';
   END IF;
 
   p_bmi := ROUND(p_cannang / (p_chieucao / 100)^2, 2);
