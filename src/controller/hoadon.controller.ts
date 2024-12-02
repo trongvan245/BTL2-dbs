@@ -1,10 +1,6 @@
 import { Request, Response } from 'express'
 import db from '~/dbs/initDatabase'
 class HoadonController {
-  static async getAllHoadon(req: Request, res: Response) {
-    const hoadon = await db.query('SELECT ngaytao,tongtien,ghichu, P.hoten as nguoithanhtoan, N.hoten as thungan FROM HOA_DON H JOIN PHU_HUYNH P ON H.CCCD_PH = P.CCCD JOIN NHAN_VIEN N ON N.CCCD = H.CCCD_TN;')
-    res.status(200).json(hoadon.rows)
-  }
 
   static async getHoadon(req: Request, res: Response) {
     const mahoadon = req.params.mahoadon
