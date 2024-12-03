@@ -54,9 +54,19 @@ class BuoiKhamBenhController {
   static async addBuoikhambenh(req: Request, res: Response) {
     // Extract data from request body
     const { taikham, trangthai, huyetap, nhietdo, chandoan, ketluan, maso_bn, cccd_bs } = req.body
+    console.log({
+      taikham,
+      trangthai,
+      huyetap,
+      nhietdo,
+      chandoan,
+      ketluan,
+      maso_bn,
+      cccd_bs
+    })
 
     // Validate required fields
-    if (!taikham || !trangthai || !huyetap || !nhietdo || !chandoan || !ketluan || !maso_bn || !cccd_bs) {
+    if (!trangthai || !huyetap || !nhietdo || !chandoan || !ketluan || !maso_bn || !cccd_bs) {
       return res.status(400).json({ message: 'Thiếu các trường bắt buộc' })
     }
 
