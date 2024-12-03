@@ -201,7 +201,7 @@ FOR EACH ROW
 EXECUTE FUNCTION check_birthday();
 
 
---
+
 CREATE OR REPLACE FUNCTION CHECK_NGAYTAIKHAM()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -219,7 +219,7 @@ FOR EACH ROW
 EXECUTE FUNCTION check_ngaytaikham();
 
 
----
+
 CREATE OR REPLACE FUNCTION update_tongtiendonthuoc()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -292,7 +292,6 @@ $$ LANGUAGE plpgsql;
 
 
 
----
 CREATE OR REPLACE FUNCTION calculate_giacadichvu(masobkb UUID)
 RETURNS NUMERIC AS $$
 BEGIN
@@ -636,7 +635,6 @@ BEGIN
 END;
 $$;
 
--- Cập nhật dữ liệu bảng BENH_NHI
 CREATE OR REPLACE PROCEDURE UpdateBenhNhi(
   In p_maso_bn UUID,
   IN p_ten_bn VARCHAR(255),
@@ -735,7 +733,6 @@ BEGIN
 END;
 $$;
 
--- Xóa dữ liệu trong bảng BENH_NHI và các thông tin liên quan
 CREATE OR REPLACE PROCEDURE DeleteBenhNhi(p_maso UUID)
 LANGUAGE plpgsql
 AS $$
@@ -771,9 +768,6 @@ BEGIN
 END;
 $$;
 
-------------------------------------------------------------------
-------------------------------------------------------------------
--- Thêm dữ liệu vào bảng PHU_HUYNH
 CREATE OR REPLACE PROCEDURE InsertPhuHuynh(
     IN p_cccd CHAR(12),
     IN p_hoten VARCHAR(255),
@@ -830,9 +824,7 @@ BEGIN
 END;
 $$;
 
-------------------------------------------------------------------
-------------------------------------------------------------------
--- Thêm dữ liệu vào bảng GIAM_HO
+
 CREATE OR REPLACE PROCEDURE InsertGiamHo(
     IN p_cccd CHAR(12),
     IN b_maso UUID,
@@ -865,16 +857,7 @@ BEGIN
 END;
 $$;
 
--- Ví dụ
--- CALL InsertGiamHo(
---     '123456789012',
---     '159ad795-6338-4990-a643-f84da4c555c4',
---     'Chú'
--- );
 
-------------------------------------------------------------------
-------------------------------------------------------------------
--- Thêm dữ liệu vào bảng THUOC
 
 CREATE OR REPLACE PROCEDURE InsertThuoc(
     IN p_ten VARCHAR(100),
@@ -905,11 +888,7 @@ BEGIN
 END;
 $$;
 
--- Ví dụ:
--- CALL InsertThuoc('Acetuss 200mg/10ml', 'Ống', 7169, NULL);
--- CALL InsertThuoc('Cefurich 500mg','Viên',13900, NULL);
 
--- Cập nhật dữ liệu bảng THUOC
 CREATE OR REPLACE PROCEDURE UpdateThuoc(
     IN p_maso UUID,
     IN p_ten VARCHAR(100),
@@ -965,10 +944,7 @@ BEGIN
 END;
 $$;
 
--- Ví dụ
--- CALL UpdateThuoc('e9b69318-4400-42b8-a305-78e29d126ccd','','Viên',13900);
 
--- Xóa dữ liệu bảng THUOC
 CREATE OR REPLACE PROCEDURE DeleteThuoc(
     IN p_maso UUID
 )
