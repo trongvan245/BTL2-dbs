@@ -325,5 +325,37 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION get_phuhuynh_from_hoadon(input_mahoadon UUID)
+RETURNS TABLE(
+    hoten_ph VARCHAR(100),
+    cccd_ph VARCHAR(100),
+    hoten_bn VARCHAR(255),
+    quanhe VARCHAR(50),
+    ngaytao DATE
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        ph.hoten AS hoten_ph,
+        ph.cccd AS cccd_ph,
+        bn.hoten AS hoten_bn,
+        gh.quanhe AS quanhe,
+        hd.ngaytao::DATE as ngaytao
+    FROM
+        "hoa_don" hd
+    JOIN
+        "buoi_kham_benh" bkb ON hd.maso_bkb = bkb.maso
+    JOIN --co the toi uu o day
+        "benh_nhi" bn ON bn.maso = bkb.maso_bn
+    JOIN
+        "giam_ho" gh ON gh.maso_bn = bn.maso
+    JOIN
+        "phu_huynh" ph ON ph.cccd = gh.cccd
+    WHERE
+        hd.mahoadon = input_mahoadon;
+END;
+$$ LANGUAGE plpgsql;
 
-SELECT * FROM get_phuhuynh_from_hoadon('e0be6c97-f834-4a73-8df4-bf06f782eec3'::uuid);
+
+
+SELECT * FROM get_phuhuynh_from_hoadon('a1111111-1111-1111-1111-111111111111'::uuid);

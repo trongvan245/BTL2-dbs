@@ -88,3 +88,40 @@ CREATE OR REPLACE TRIGGER update_tongtien_after_don_thuoc_trigger
 BEFORE INSERT ON HOA_DON
 FOR EACH ROW
 EXECUTE FUNCTION update_tongtiendonthuoc();
+
+
+CREATE OR REPLACE TRIGGER update_tongtien_after_don_thuoc_trigger
+BEFORE INSERT ON HOA_DON
+FOR EACH ROW
+EXECUTE FUNCTION update_tongtiendonthuoc();
+
+
+CREATE OR REPLACE FUNCTION validate_phuhuynh()
+RETURNS TRIGGER AS $$
+DECLARE
+    valid_phuhuynh BOOLEAN;
+BEGIN
+    -- Check if the phuhuynh exists in get_phuhuynh_from_hoadon
+    SELECT EXISTS (
+        SELECT 1
+        FROM get_phuhuynh_from_hoadon(NEW.mahoadon)
+        WHERE cccd_ph = NEW.phuhuynh
+    )
+    INTO valid_phuhuynh;
+
+    -- If not valid, raise an error
+    IF NOT valid_phuhuynh THEN
+        RAISE EXCEPTION 'Invalid phuhuynh: % does not exist for mahoadon: %',
+            NEW.phuhuynh, NEW.mahoadon;
+    END IF;
+
+    -- Proceed with the insert
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER get_phuhuynh_from_hoadon_trigger
+BEFORE INSERT ON HOA_DON
+FOR EACH ROW
+EXECUTE FUNCTION validate_phuhuynh();
