@@ -31,12 +31,14 @@ class PhuhuynhController {
     }
 
     // SQL query to insert the new data into the PHU_HUYNH table
+    // const query = `
+    //   INSERT INTO PHU_HUYNH (CCCD, HOTEN, SDT, SONHA, TENDUONG, PHUONG, HUYEN, TINH)
+    //   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    //   RETURNING *;
+    // `
     const query = `
-      INSERT INTO PHU_HUYNH (CCCD, HOTEN, SDT, SONHA, TENDUONG, PHUONG, HUYEN, TINH)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING *;
-    `
-
+    CALL InsertPhuHuynh ($1, $2, $3, $4, $5, $6, $7, $8);
+  `
     try {
       // Execute the query with the values
       const result = await db.query(query, [cccd, hoten, sdt, sonha, tenduong, phuong, huyen, tinh])
@@ -44,7 +46,7 @@ class PhuhuynhController {
       // Respond with the newly created record
       res.status(201).json({
         message: 'Thêm Phụ Huynh thành công',
-        data: result.rows[0]
+        data: { cccd, hoten, sdt, sonha, tenduong, phuong, huyen, tinh }
       })
     } catch (error) {
       console.error('Lỗi khi thêm Phụ Huynh:', error)
